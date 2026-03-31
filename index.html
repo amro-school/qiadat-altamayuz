@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>لوحة قيادة التميز المدرسي 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g1:#1a6b5a;--g2:#2d9b7e;--g3:#3dbfa0;--gp:#e8f7f4;
+  --gold:#e6a817;--goldp:#fff8e1;--red:#c0392b;--redp:#fde8e5;
+  --blue:#2980b9;--bluep:#ebf5fb;
+  --txt:#1a2e2b;--txt2:#5a7a75;--bg:#eef3f2;--wh:#fff;
+  --sw:230px;--r:12px;--sh:0 2px 14px rgba(0,0,0,.07);
+}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--txt);display:flex;height:100vh;overflow:hidden;font-size:14px}
+
+/* SIDEBAR */
+#sb{width:var(--sw);background:linear-gradient(180deg,#145c4d 0%,#0e4438 100%);color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;transition:.3s}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sb-head h2{font-size:17px;font-weight:900;line-height:1.35}
+.sb-head p{font-size:10.5px;opacity:.65;margin-top:3px}
+.sb-yr{padding:8px 14px;font-size:12px;opacity:.55;border-bottom:1px solid rgba(255,255,255,.08)}
+nav{flex:1;padding:6px 0}
+.nav-sec{padding:8px 14px 3px;font-size:10px;font-weight:700;letter-spacing:.5px;opacity:.45;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:7px;padding:9px 16px;cursor:pointer;font-size:13px;font-weight:500;transition:.15s;border-right:3px solid transparent;line-height:1.3}
+.nav-item:hover{background:rgba(255,255,255,.08);border-right-color:rgba(255,255,255,.3)}
+.nav-item.active{background:rgba(255,255,255,.16);border-right-color:#fff;font-weight:700}
+.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+
+/* MAIN */
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+#topbar{background:var(--wh);padding:10px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #dde8e5;flex-shrink:0;gap:10px}
+.tb-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tb-badge{background:var(--g1);color:#fff;border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:700}
+.tb-level{background:var(--gp);color:var(--g1);border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:700}
+.tb-l{text-align:right}
+.tb-l h1{font-size:16px;font-weight:900;color:var(--g1)}
+.tb-l p{font-size:11px;color:var(--txt2)}
+
+#content{padding:18px 22px;flex:1}
+.page{display:none}.page.active{display:block}
+
+/* CARDS */
+.cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.card{background:var(--wh);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.card.green{background:linear-gradient(135deg,#2d9b7e,#145c4d);color:#fff}
+.card.gold{background:linear-gradient(135deg,#e6a817,#c88c00);color:#fff}
+.card.red{background:var(--redp);border:1px solid #f5c6c1}
+.card.blue{background:var(--bluep);border:1px solid #aed6f1}
+.c-lbl{font-size:10.5px;opacity:.8;margin-bottom:3px}
+.c-val{font-size:26px;font-weight:900;line-height:1}
+.c-sub{font-size:10px;opacity:.7;margin-top:3px}
+.c-ico{position:absolute;left:14px;top:12px;font-size:20px;opacity:.6}
+
+/* CHART */
+.chart-box{background:var(--wh);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.chart-box h3{font-size:14px;font-weight:800;color:var(--g1);margin-bottom:3px}
+.chart-box p{font-size:11.5px;color:var(--txt2);margin-bottom:14px}
+.chart-legend{display:flex;gap:20px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--txt2)}
+.leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+
+/* SECTION */
+.sec-title{font-size:17px;font-weight:900;color:var(--g1);margin-bottom:3px}
+.sec-sub{font-size:12px;color:var(--txt2);margin-bottom:16px}
+
+/* INDICATORS GRID */
+.ind-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.ind-card{background:var(--wh);border-radius:var(--r);padding:14px;box-shadow:var(--sh);border:2px solid transparent;transition:.2s;cursor:pointer}
+.ind-card:hover{border-color:var(--g3);transform:translateY(-2px)}
+.ind-card.need{border-right:4px solid var(--gold)}
+.ind-card.ok{border-right:4px solid var(--g2)}
+.ind-id{font-size:11px;color:var(--txt2);margin-bottom:5px;font-weight:600}
+.ind-card h4{font-size:12.5px;font-weight:700;color:var(--g1);margin-bottom:8px;line-height:1.4}
+.prog-bar{height:5px;background:#e0ebe8;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;border-radius:3px;transition:.6s}
+.prog-fill.hi{background:linear-gradient(90deg,var(--g3),var(--g1))}
+.prog-fill.lo{background:linear-gradient(90deg,#e74c3c,var(--red))}
+.ind-row{display:flex;justify-content:space-between;font-size:11px}
+.ind-cur{color:var(--g1);font-weight:700}
+.ind-tgt{color:var(--txt2)}
+
+/* MINI STATS */
+.mini-row{display:flex;gap:10px;margin-bottom:14px}
+.mini-stat{background:var(--wh);border-radius:10px;padding:12px 16px;box-shadow:var(--sh);flex:1;text-align:center;border-top:3px solid var(--g2)}
+.mini-stat.gd{border-top-color:var(--gold)}.mini-stat.rd{border-top-color:var(--red)}.mini-stat.bl{border-top-color:var(--blue)}
+.ms-val{font-size:22px;font-weight:900;color:var(--g1)}.mini-stat.gd .ms-val{color:#a07000}.mini-stat.rd .ms-val{color:var(--red)}.mini-stat.bl .ms-val{color:var(--blue)}
+.ms-lbl{font-size:10.5px;color:var(--txt2);margin-top:2px}
+
+/* FORM */
+.form-box{background:var(--wh);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
+.form-box h3{font-size:14.5px;font-weight:800;color:var(--g1);margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid var(--gp)}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:12.5px;font-weight:700;color:var(--txt)}
+.fg input,.fg select,.fg textarea{border:1.5px solid #d0e6e0;border-radius:8px;padding:9px 12px;font-family:'Tajawal',sans-serif;font-size:13px;color:var(--txt);background:#fafefe;outline:none;transition:.2s;direction:rtl;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(45,155,126,.1)}
+.fg textarea{min-height:80px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+.btn-save{background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;border:none;border-radius:9px;padding:10px 24px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;float:left;margin-top:6px}
+.btn-save:hover{opacity:.88;transform:translateY(-1px)}
+.btn-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;padding:2px 6px;border-radius:5px;transition:.15s}
+.btn-del:hover{color:var(--red);background:var(--redp)}
+
+/* TABLE */
+.tbl-box{background:var(--wh);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.tbl-box h3{font-size:14px;font-weight:800;color:var(--g1);margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--gp);color:var(--g1);padding:9px 12px;font-size:12px;font-weight:700;text-align:right}
+td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid #eef4f2;color:var(--txt);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafefe}
+.empty{text-align:center;color:#bbb;padding:28px;font-size:13px}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.b-g{background:#d4f5ec;color:#0e7a5e}.b-y{background:#fff3cd;color:#a07000}.b-r{background:#fde8e5;color:var(--red)}
+
+/* ALERT BOX */
+.alert{padding:11px 14px;border-radius:9px;margin-bottom:10px;display:flex;align-items:flex-start;gap:9px;font-size:12.5px;line-height:1.5}
+.alert.warn{background:var(--goldp);border:1px solid #ffe082;color:#7a5500}
+.alert.info{background:var(--gp);border:1px solid #b2dfdb;color:var(--g1)}
+.al-ico{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* DOMAIN CARDS */
+.domain-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+.domain-card{background:var(--wh);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-top:4px solid var(--g2)}
+.domain-card.d2{border-top-color:var(--blue)}.domain-card.d3{border-top-color:var(--gold)}.domain-card.d4{border-top-color:#9b59b6}
+.dc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.dc-title{font-size:13.5px;font-weight:800;color:var(--g1)}
+.dc-count{font-size:11px;background:var(--gp);color:var(--g1);padding:2px 9px;border-radius:20px;font-weight:700}
+.dc-desc{font-size:11.5px;color:var(--txt2);line-height:1.5;margin-bottom:10px}
+.dc-standards{display:flex;flex-wrap:wrap;gap:5px}
+.std-tag{font-size:10.5px;background:#f0f4f3;color:var(--txt);padding:3px 8px;border-radius:5px;border:1px solid #dde8e5}
+
+/* INDICATOR DETAIL */
+.ind-detail{background:var(--wh);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.ind-detail-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--gp)}
+.ind-code{background:var(--g1);color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;white-space:nowrap}
+.ind-info{flex:1}
+.ind-info h3{font-size:14px;font-weight:800;color:var(--g1);margin-bottom:4px}
+.ind-meta{display:flex;gap:10px;flex-wrap:wrap}
+.ind-meta span{font-size:11px;background:var(--gp);color:var(--txt2);padding:2px 8px;border-radius:5px}
+.lights-list{display:flex;flex-direction:column;gap:6px}
+.light-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:#fafefe;border-radius:8px;border-right:3px solid var(--g3);font-size:12.5px;line-height:1.5}
+.light-num{background:var(--g2);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.eval-tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--gp)}
+.tool-tag{font-size:11px;padding:3px 9px;border-radius:5px;background:var(--gp);color:var(--g1);font-weight:600}
+
+/* REPORT */
+.rep-sec{background:var(--wh);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.rep-sec h3{font-size:14px;font-weight:800;color:var(--g1);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--gp)}
+.rep-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f4f3;font-size:13px}
+.rep-row:last-child{border-bottom:none}
+
+/* SCROLL */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#c0d9d4;border-radius:3px}
+
+@media(max-width:900px){
+  .ind-grid{grid-template-columns:1fr 1fr}
+  .cards-row{grid-template-columns:1fr 1fr}
+  .domain-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="sb">
+  <div class="sb-head">
+    <h2>لوحة قيادة<br/>التميز المدرسي</h2>
+    <p>مدرسة عمرو بن الجموح الأنصاري</p>
+  </div>
+  <div class="sb-yr">العام الدراسي: 1447</div>
+  <nav id="nav">
+    <div class="nav-sec">الرئيسية</div>
+    <div class="nav-item active" data-page="home"><span class="nav-icon">🏠</span>الواجهة الرئيسية</div>
+    <div class="nav-sec">المجالات</div>
+    <div class="nav-item" data-page="all-ind"><span class="nav-icon">📊</span>جميع المؤشرات</div>
+    <div class="nav-item" data-page="d1"><span class="nav-icon">🏫</span>الإدارة المدرسية</div>
+    <div class="nav-item" data-page="d2"><span class="nav-icon">📚</span>التعليم والتعلم</div>
+    <div class="nav-item" data-page="d3"><span class="nav-icon">🎓</span>نواتج التعلم</div>
+    <div class="nav-item" data-page="d4"><span class="nav-icon">🏗️</span>البيئة المدرسية</div>
+    <div class="nav-sec">الأدوات</div>
+    <div class="nav-item" data-page="improvements"><span class="nav-icon">✅</span>التحسينات</div>
+    <div class="nav-item" data-page="evidence"><span class="nav-icon">📎</span>الشواهد</div>
+    <div class="nav-item" data-page="challenges"><span class="nav-icon">⚠️</span>التحديات</div>
+    <div class="nav-item" data-page="reports"><span class="nav-icon">📄</span>التقارير</div>
+  </nav>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <div class="tb-r">
+      <div class="tb-badge">آخر تحديث: 2026-03-09</div>
+      <div class="tb-level">مستوى الجاهزية: متوسط</div>
+    </div>
+    <div class="tb-l">
+      <h1 id="page-title">الواجهة الرئيسية</h1>
+      <p>مدرسة عمرو بن الجموح الأنصاري</p>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="cards-row">
+        <div class="card green"><div class="c-ico">📌</div><div class="c-lbl">إجمالي المؤشرات</div><div class="c-val" id="h-total">36</div><div class="c-sub">عبر 4 مجالات</div></div>
+        <div class="card green"><div class="c-ico">🎯</div><div class="c-lbl">متوسط المستهدف</div><div class="c-val">77%</div><div class="c-sub">المستوى المأمول</div></div>
+        <div class="card green"><div class="c-ico">📊</div><div class="c-lbl">متوسط الأداء الحالي</div><div class="c-val" id="h-avg">69%</div><div class="c-sub">الوضع الراهن</div></div>
+        <div class="card gold"><div class="c-ico">⚠️</div><div class="c-lbl">تحتاج متابعة</div><div class="c-val" id="h-low">22</div><div class="c-sub">نقاط الأولوية</div></div>
+      </div>
+      <div class="cards-row">
+        <div class="card green"><div class="c-ico">🏫</div><div class="c-lbl">اسم المدرسة</div>        <div class="c-val" style="font-size:12px;margin-top:4px">عمرو بن الجموح الأنصاري</div><div class="c-sub">ابتدائية</div></div>
+        <div class="card green"><div class="c-ico">📅</div><div class="c-lbl">العام الدراسي</div><div class="c-val" style="font-size:20px">1447</div><div class="c-sub">المعتمد</div></div>
+        <div class="card green"><div class="c-ico">✅</div><div class="c-lbl">التحسينات</div><div class="c-val" id="h-impr">0</div><div class="c-sub">إجراء مضاف</div></div>
+        <div class="card green"><div class="c-ico">📎</div><div class="c-lbl">الشواهد</div><div class="c-val" id="h-evid">0</div><div class="c-sub">شاهد مرفق</div></div>
+      </div>
+
+      <div class="chart-box">
+        <h3>مقارنة الأداء الحالي بالمستهدف</h3>
+        <p>مقارنة مرئية بين مستوى الأداء الحالي والقيم المستهدفة لمؤشرات المجالات الأربعة</p>
+        <canvas id="mainChart" height="90"></canvas>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#2d9b7e"></div>الأداء الحالي</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#e74c3c"></div>المستهدف</div>
+        </div>
+      </div>
+
+      <div class="domain-grid">
+        <div class="domain-card">
+          <div class="dc-head"><span class="dc-title">🏫 الإدارة المدرسية</span><span class="dc-count">19 مؤشراً</span></div>
+          <div class="dc-desc">التخطيط، قيادة العملية التعليمية، المجتمع المدرسي، التطوير المؤسسي، حقوق المتعلم</div>
+          <div class="dc-standards"><span class="std-tag">التخطيط</span><span class="std-tag">القيادة</span><span class="std-tag">المجتمع</span><span class="std-tag">التطوير</span><span class="std-tag">الحقوق</span></div>
+        </div>
+        <div class="domain-card d2">
+          <div class="dc-head"><span class="dc-title">📚 التعليم والتعلم</span><span class="dc-count">13 مؤشراً</span></div>
+          <div class="dc-desc">بناء خبرات التعلم، تقويم التعلم، استراتيجيات التدريس المتنوعة</div>
+          <div class="dc-standards"><span class="std-tag">بناء الخبرات</span><span class="std-tag">تقويم التعلم</span><span class="std-tag">التقنية</span></div>
+        </div>
+        <div class="domain-card d3">
+          <div class="dc-head"><span class="dc-title">🎓 نواتج التعلم</span><span class="dc-count">13 مؤشراً</span></div>
+          <div class="dc-desc">التحصيل التعليمي في القراءة والرياضيات والعلوم، التطور الشخصي والصحي</div>
+          <div class="dc-standards"><span class="std-tag">التحصيل</span><span class="std-tag">التطور الشخصي</span><span class="std-tag">الصحة</span></div>
+        </div>
+        <div class="domain-card d4">
+          <div class="dc-head"><span class="dc-title">🏗️ البيئة المدرسية</span><span class="dc-count">7 مؤشرات</span></div>
+          <div class="dc-desc">المبنى المدرسي، الأمن والسالمة، الصيانة والنظافة</div>
+          <div class="dc-standards"><span class="std-tag">المبنى</span><span class="std-tag">الأمن</span><span class="std-tag">الصيانة</span><span class="std-tag">النظافة</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL INDICATORS -->
+    <div class="page" id="page-all-ind">
+      <div class="sec-title">جميع المؤشرات</div>
+      <div class="sec-sub">كافة مؤشرات الأداء الـ 36 عبر المجالات الأربعة</div>
+      <div class="mini-row">
+        <div class="mini-stat"><div class="ms-val" id="ai-tot">36</div><div class="ms-lbl">إجمالي المؤشرات</div></div>
+        <div class="mini-stat gd"><div class="ms-val" id="ai-low">22</div><div class="ms-lbl">تحتاج تحسين</div></div>
+        <div class="mini-stat"><div class="ms-val" id="ai-ok">14</div><div class="ms-lbl">مستوفية</div></div>
+        <div class="mini-stat rd"><div class="ms-val">69%</div><div class="ms-lbl">متوسط الأداء</div></div>
+      </div>
+      <div class="ind-grid" id="all-ind-grid"></div>
+    </div>
+
+    <!-- D1: ADMIN -->
+    <div class="page" id="page-d1">
+      <div class="sec-title">مجال الإدارة المدرسية</div>
+      <div class="sec-sub">19 مؤشراً موزعة على 5 معايير رئيسية</div>
+      <div class="alert info"><span class="al-ico">ℹ️</span><span>تركز عمليات الإدارة المدرسية على التأثير الفاعل في المجتمع المدرسي لتحقيق مستويات متقدمة في الأداء المتميز ودعم تنفيذ الخطط وإدارة التعليم والتطوير المهني.</span></div>
+      <div class="ind-grid" id="d1-grid"></div>
+    </div>
+
+    <!-- D2: T&L -->
+    <div class="page" id="page-d2">
+      <div class="sec-title">مجال التعليم والتعلم</div>
+      <div class="sec-sub">13 مؤشراً موزعة على معيارين: بناء خبرات التعلم وتقويم التعلم</div>
+      <div class="alert info"><span class="al-ico">ℹ️</span><span>ترتكز بيئة التعلم حول المتعلم، وتنوع استراتيجيات وأنشطة التعليم لتلبية احتياجات المتعلمين وتنمية قدراتهم في اكتساب المعارف والمهارات.</span></div>
+      <div class="ind-grid" id="d2-grid"></div>
+    </div>
+
+    <!-- D3: OUTCOMES -->
+    <div class="page" id="page-d3">
+      <div class="sec-title">مجال نواتج التعلم</div>
+      <div class="sec-sub">13 مؤشراً: التحصيل التعليمي والتطور الشخصي والصحي والاجتماعي</div>
+      <div class="alert info"><span class="al-ico">ℹ️</span><span>تمثل نواتج التعلم المعارف والمهارات والاتجاهات والقيم المتوقع تحقيقها لدى المتعلمين نتيجة مرورهم بخبرات تربوية مخططة.</span></div>
+      <div class="ind-grid" id="d3-grid"></div>
+    </div>
+
+    <!-- D4: ENVIRONMENT -->
+    <div class="page" id="page-d4">
+      <div class="sec-title">مجال البيئة المدرسية</div>
+      <div class="sec-sub">7 مؤشرات: المبنى المدرسي والأمن والسالمة</div>
+      <div class="alert info"><span class="al-ico">ℹ️</span><span>تحقق البيئة المدرسية المتطلبات الأساسية وضمان جودة عناصر الأمن والسالمة لتمكين مجتمع المدرسة من تحقيق الأهداف التعليمية.</span></div>
+      <div class="ind-grid" id="d4-grid"></div>
+    </div>
+
+    <!-- IMPROVEMENTS -->
+    <div class="page" id="page-improvements">
+      <div class="sec-title">التحسينات</div>
+      <div class="sec-sub">إضافة ومتابعة إجراءات التحسين المرتبطة بالمؤشرات المدرسية</div>
+      <div class="mini-row">
+        <div class="mini-stat"><div class="ms-val" id="im-comp">0</div><div class="ms-lbl">مكتمل</div></div>
+        <div class="mini-stat gd"><div class="ms-val" id="im-part">0</div><div class="ms-lbl">مكتمل جزئياً</div></div>
+        <div class="mini-stat rd"><div class="ms-val" id="im-pend">0</div><div class="ms-lbl">قيد التنفيذ</div></div>
+      </div>
+      <div class="form-box">
+        <h3>إضافة تحسين جديد</h3>
+        <div class="form-grid">
+          <div class="fg"><label>عنوان التحسين</label><input id="im-title" placeholder="مثال: تعزيز مشاركة الأسرة"/></div>
+          <div class="fg"><label>المؤشر المرتبط</label><select id="im-ind"><option value="">اختر المؤشر...</option></select></div>
+          <div class="fg"><label>المجال</label><select id="im-area"><option value="">اختر المجال</option><option>الإدارة المدرسية</option><option>التعليم والتعلم</option><option>نواتج التعلم</option><option>البيئة المدرسية</option></select></div>
+          <div class="fg"><label>الحالة</label><select id="im-status"><option value="">اختر الحالة</option><option>قيد التنفيذ</option><option>مكتمل جزئياً</option><option>مكتمل</option></select></div>
+          <div class="fg"><label>المسؤول</label><input id="im-resp" placeholder="مثال: قائد المدرسة"/></div>
+          <div class="fg"><label>نسبة التنفيذ %</label><input id="im-pct" type="number" min="0" max="100" placeholder="60"/></div>
+          <div class="fg"><label>تاريخ البدء</label><input id="im-start" type="date"/></div>
+          <div class="fg"><label>التاريخ المستهدف</label><input id="im-end" type="date"/></div>
+          <div class="fg full"><label>وصف التحسين</label><textarea id="im-desc" placeholder="اكتب وصفاً مختصراً للإجراء..."></textarea></div>
+          <div class="fg full"><label>ملاحظة متابعة</label><textarea id="im-note" placeholder="آخر ملاحظة متابعة أو ما تم تنفيذه..."></textarea></div>
+        </div>
+        <div style="overflow:hidden"><button class="btn-save" onclick="saveImpr()">حفظ التحسين</button></div>
+      </div>
+      <div class="tbl-box"><h3>قائمة التحسينات</h3><div id="im-list"><div class="empty">لا توجد تحسينات مضافة حتى الآن.</div></div></div>
+    </div>
+
+    <!-- EVIDENCE -->
+    <div class="page" id="page-evidence">
+      <div class="sec-title">الشواهد</div>
+      <div class="sec-sub">إضافة الشواهد وربطها بالمجال والمؤشر داخل النظام</div>
+      <div class="mini-row">
+        <div class="mini-stat"><div class="ms-val" id="ev-comp">0</div><div class="ms-lbl">مكتمل</div></div>
+        <div class="mini-stat gd"><div class="ms-val" id="ev-part">0</div><div class="ms-lbl">مكتمل جزئياً</div></div>
+      </div>
+      <div class="form-box">
+        <h3>إضافة شاهد جديد</h3>
+        <div class="form-grid">
+          <div class="fg"><label>عنوان الشاهد</label><input id="ev-title" placeholder="مثال: محضر اجتماع فريق التحسين"/></div>
+          <div class="fg"><label>المؤشر المرتبط</label><select id="ev-ind"><option value="">اختر المؤشر...</option></select></div>
+          <div class="fg"><label>المجال</label><select id="ev-area"><option value="">اختر المجال</option><option>الإدارة المدرسية</option><option>التعليم والتعلم</option><option>نواتج التعلم</option><option>البيئة المدرسية</option></select></div>
+          <div class="fg"><label>نوع الشاهد</label><select id="ev-type"><option value="">اختر النوع</option><option>محضر اجتماع</option><option>تقرير</option><option>صورة</option><option>وثيقة</option><option>فيديو</option><option>بيانات</option><option>خطة</option></select></div>
+          <div class="fg"><label>الجهة / المسؤول</label><input id="ev-resp" placeholder="مثال: قائد المدرسة"/></div>
+          <div class="fg"><label>تاريخ الشاهد</label><input id="ev-date" type="date"/></div>
+          <div class="fg full"><label>وصف الشاهد</label><textarea id="ev-desc" placeholder="وصف مختصر للشاهد..."></textarea></div>
+          <div class="fg full"><label>رابط Google Drive</label><input id="ev-link" placeholder="رابط الشاهد أو اسم الملف أو مرجع الحفظ"/></div>
+        </div>
+        <div style="overflow:hidden"><button class="btn-save" onclick="saveEvid()">حفظ الشاهد</button></div>
+      </div>
+      <div class="tbl-box"><h3>قائمة الشواهد</h3><div id="ev-list"><div class="empty">لا توجد شواهد مضافة حتى الآن.</div></div></div>
+    </div>
+
+    <!-- CHALLENGES -->
+    <div class="page" id="page-challenges">
+      <div class="sec-title">التحديات</div>
+      <div class="sec-sub">رصد وتوثيق التحديات التي تواجه تحقيق المؤشرات</div>
+      <div class="form-box">
+        <h3>إضافة تحدٍّ جديد</h3>
+        <div class="form-grid">
+          <div class="fg"><label>عنوان التحدي</label><input id="ch-title" placeholder="وصف التحدي الرئيسي..."/></div>
+          <div class="fg"><label>المجال المتأثر</label><select id="ch-area"><option value="">اختر المجال</option><option>الإدارة المدرسية</option><option>التعليم والتعلم</option><option>نواتج التعلم</option><option>البيئة المدرسية</option></select></div>
+          <div class="fg"><label>درجة الأثر</label><select id="ch-impact"><option value="">اختر</option><option>عالي</option><option>متوسط</option><option>منخفض</option></select></div>
+          <div class="fg"><label>المسؤول عن المعالجة</label><input id="ch-resp" placeholder="الجهة المسؤولة..."/></div>
+          <div class="fg full"><label>وصف التحدي</label><textarea id="ch-desc" placeholder="اشرح التحدي بالتفصيل..."></textarea></div>
+          <div class="fg full"><label>المقترحات والحلول</label><textarea id="ch-sol" placeholder="المقترحات للتغلب على هذا التحدي؟"></textarea></div>
+        </div>
+        <div style="overflow:hidden"><button class="btn-save" onclick="saveChal()">حفظ التحدي</button></div>
+      </div>
+      <div class="tbl-box"><h3>قائمة التحديات</h3><div id="ch-list"><div class="empty">لا توجد تحديات مضافة حتى الآن.</div></div></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="sec-title">التقارير</div>
+      <div class="sec-sub">ملخص شامل لأداء المدرسة والمؤشرات</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="rep-sec">
+          <h3>📊 ملخص الأداء العام</h3>
+          <div class="rep-row"><span>متوسط الأداء الحالي</span><strong style="color:var(--g1)" id="r-avg">69%</strong></div>
+          <div class="rep-row"><span>متوسط المستهدف</span><strong style="color:var(--g1)">77%</strong></div>
+          <div class="rep-row"><span>إجمالي المؤشرات</span><strong id="r-tot">36</strong></div>
+          <div class="rep-row"><span>مؤشرات تحتاج تحسين</span><strong style="color:var(--gold)" id="r-low">22</strong></div>
+          <div class="rep-row"><span>مؤشرات مستوفية</span><strong style="color:var(--g2)" id="r-ok">14</strong></div>
+        </div>
+        <div class="rep-sec">
+          <h3>🏫 المجالات الأربعة</h3>
+          <div class="rep-row"><span>الإدارة المدرسية</span><strong>19 مؤشراً</strong></div>
+          <div class="rep-row"><span>التعليم والتعلم</span><strong>13 مؤشراً</strong></div>
+          <div class="rep-row"><span>نواتج التعلم</span><strong>13 مؤشراً</strong></div>
+          <div class="rep-row"><span>البيئة المدرسية</span><strong>7 مؤشرات</strong></div>
+        </div>
+        <div class="rep-sec">
+          <h3>✅ التحسينات</h3>
+          <div class="rep-row"><span>إجمالي التحسينات</span><strong id="r-imp">0</strong></div>
+          <div class="rep-row"><span>مكتملة</span><strong style="color:var(--g2)" id="r-ic">0</strong></div>
+          <div class="rep-row"><span>قيد التنفيذ</span><strong style="color:var(--gold)" id="r-ip">0</strong></div>
+        </div>
+        <div class="rep-sec">
+          <h3>📎 الشواهد والتحديات</h3>
+          <div class="rep-row"><span>إجمالي الشواهد</span><strong id="r-ev">0</strong></div>
+          <div class="rep-row"><span>إجمالي التحديات</span><strong id="r-ch">0</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+
+<script>
+// ==================== DATA ====================
+const INDICATORS = [
+  // مجال 1: الإدارة المدرسية
+  {id:"1-1-1-1",domain:"d1",standard:"التخطيط",text:"تضع المدرسة خطة تشغيلية شاملة وفق أهداف تطويرية محددة.",current:65,target:80,
+   lights:["إعداد خطة تشغيلية شاملة ومكتملة العناصر تتضمن: تحليل الواقع، وأهدافاً محددة، وبرامج ومبادرات نوعية.","مشاركة أكثر من 90% من منسوبي المدرسة في إعداد الخطة التشغيلية.","صياغة الأهداف التفصيلية بحيث تكون طموحة وقابلة للتطبيق والقياس.","يتضمن كل هدف مؤشراً أساسياً وخطاً زمنياً ومستهدفاً ومسؤولاً وآلية دورية.","تصميم البرامج والأنشطة بحيث تغطي جميع المجالات.","توزيع الأدوار والمسؤوليات على منسوبي المدرسة."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"2-1-1-1",domain:"d1",standard:"التخطيط",text:"تتابع المدرسة تنفيذ خطتها التشغيلية، وتطورها بما يضمن تحقيق أهدافها.",current:60,target:80,
+   lights:["إعداد خطة متابعة زمنية للبرامج والأنشطة وتنفيذها.","رصد المشكلات والتحديات أثناء التنفيذ وتحليل مسبباتها.","تنفيذ تقويم شامل للخطة والبرامج مع توفير أدوات متنوعة.","تطوير الخطة المدرسية استناداً إلى نتائج التقويم.","إشراك المجتمع المدرسي في مراجعة الخطة وتطويرها."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"1-1-2-1",domain:"d1",standard:"قيادة العملية التعليمية",text:"تعزز المدرسة القيم الإسلامية، والهوية الوطنية.",current:75,target:85,
+   lights:["تنفيذ برامج توعوية للمجتمع المدرسي لتعزيز القيم الإسلامية والهوية الوطنية.","دمج القيم الإسلامية والهوية الوطنية في جميع الممارسات والأنشطة الصفية اليومية.","الاحتفاء بالمناسبات الوطنية بشكل منظم يشارك فيه جميع الطلبة.","تفعيل الشراكة مع أولياء الأمور لدعم القيم الإسلامية والهوية الوطنية."],
+   tools:["استبانة المعلم","استبانة المتعلم","استبانة الأسرة","المقابلات","تحليل الوثائق"]},
+  {id:"2-1-2-1",domain:"d1",standard:"قيادة العملية التعليمية",text:"تطبق المدرسة قيم مهنة التعليم وأخالقياتها، وتتابع الالتزام بها.",current:70,target:80,
+   lights:["تنفيذ برامج توعوية شاملة عن قيمة مهنة التعليم وأخالقياتها بشكل مستمر.","متابعة التزام منسوبي المدرسة بقيم مهنة التعليم وأخالقياتها.","تنفيذ إجراءات رسمية للمساءلة بشأن مخالفات قيم مهنة التعليم."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"3-1-2-1",domain:"d1",standard:"قيادة العملية التعليمية",text:"تطبق المدرسة إجراءات محددة لدعم الانضباط المدرسي، وتتابع الالتزام بها.",current:65,target:80,
+   lights:["اعتماد حزمة إجراءات الانضباط المدرسي (وقائية/علاجية/تصحيحية) وتعميمها.","تنفيذ برامج توعوية دورية لترسيخ قواعد السلوك والانضباط.","متابعة شواهد الالتزام (حصر الغيابات والمخالفات السلوكية)."],
+   tools:["استبانة المعلم","استبانة المتعلم","استبانة الأسرة","المقابلات"]},
+  {id:"4-1-2-1",domain:"d1",standard:"قيادة العملية التعليمية",text:"تنفذ المدرسة برامج وأنشطة تربوية داعمة للسلوك الإيجابي لدى المتعلمين، ومنهم ذوو الإعاقة والموهوبون، وتتابعها.",current:60,target:75,
+   lights:["إعداد إجراءات محددة للكشف المبكر عن المشكلات السلوكية.","تطبيق برامج وأنشطة توعوية ووقائية وعلاجية لتعزيز السلوك الإيجابي.","التواصل بشكل مستمر مع الأسرة لمناقشة المشكلات السلوكية."],
+   tools:["استبانة المعلم","استبانة المتعلم","المقابلات","تحليل الوثائق"]},
+  {id:"5-1-2-1",domain:"d1",standard:"قيادة العملية التعليمية",text:"تنفذ المدرسة برامج وأنشطة إثرائية لتطوير مواهب المتعلمين، وتهيئهم للمستقبل، وتتابعها.",current:55,target:75,
+   lights:["إعداد خطة متكاملة للأنشطة الإثرائية صفية وغير الصفية وتنفيذها.","تطبيق أساليب للكشف عن مواهب المتعلمين وربط البرامج بنتائج التشخيص.","نشر الوعي والثقافة عن المسابقات الوطنية والدولية وطرق المشاركة."],
+   tools:["استبانة المعلم","استبانة المتعلم","استبانة الأسرة","المقابلات"]},
+  {id:"1-1-3-1",domain:"d1",standard:"المجتمع المدرسي",text:"تعزز المدرسة بناء العلاقات الإيجابية والتعاون في المجتمع المدرسي.",current:70,target:80,
+   lights:["إعداد خطة متكاملة لتعزيز العمل التعاوني بين منسوبي المدرسة.","تعزيز العمل الجماعي بأساليب وطرائق مبتكرة داخل المدرسة.","متابعة أثر تطبيق برامج التعاون من خلال أدوات قياس الرضا."],
+   tools:["استبانة المعلم","استبانة المتعلم","المقابلات"]},
+  {id:"2-1-3-1",domain:"d1",standard:"المجتمع المدرسي",text:"تعزز المدرسة مشاركة الأسرة في تعلم أبنائهم، والتحضير لمستقبلهم.",current:60,target:80,
+   lights:["تنفيذ أنشطة وبرامج متنوعة للتوعية بدور الأسرة في تعلم أبنائهم.","مشاركة الأسرة في تقويم تعلم أبنائهم ومتابعة أداء المهام والواجبات.","تفعيل أساليب وطرق متنوعة للتواصل مع الأسرة بشكل مستمر."],
+   tools:["استبانة المعلم","استبانة المتعلم","استبانة الأسرة","المقابلات"]},
+  {id:"3-1-3-1",domain:"d1",standard:"المجتمع المدرسي",text:"تعزز المدرسة الشراكة المجتمعية لدعم التعلم والتأثير الإيجابي في المجتمع.",current:50,target:75,
+   lights:["تفعيل أساليب وطرق متنوعة للتواصل والتعاون مع مؤسسات المجتمع.","عقد شراكات مجتمعية مع المؤسسات الوطنية ذات العلاقة.","دعم تبادل الخبرات مع المدارس الأخرى."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"4-1-4-1",domain:"d1",standard:"التطوير المؤسسي",text:"تدعم المدرسة منسوبيها للحصول على الرخصة المهنية، وتتابعها.",current:65,target:85,
+   lights:["إعداد خطة تستهدف تقديم الدعم المستمر للمعلمين لتحقيق نسبة 90% من الحاصلين على الرخصة.","تنفيذ أنشطة وبرامج توعوية وإرشادية لجميع التخصصات.","تحليل نتائج اختبارات الرخصة المهنية دورياً."],
+   tools:["استبانة المعلم","تحليل الوثائق","نتائج الرخصة المهنية"]},
+  {id:"5-1-4-1",domain:"d1",standard:"التطوير المؤسسي",text:"تدعم المدرسة التطوير المهني لمنسوبيها وفقاً لنتائج التقويم وتحليل احتياجاتهم.",current:60,target:80,
+   lights:["إعداد خطة تطوير مهني تشمل جميع منسوبي المدرسة مرتبطة بنتائج تقويم الأداء.","تنفيذ برامج وأنشطة متنوعة للتطوير المهني بصورة مستمرة.","بناء مجتمعات التعلم المهني في المدرسة.","تطبيق أساليب متنوعة لقياس أثر التدريب بانتظام."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"6-1-4-1",domain:"d1",standard:"التطوير المؤسسي",text:"تطبق المدرسة التقويم الذاتي على المعايير المعتمدة من الهيئة بشكل مستمر.",current:55,target:80,
+   lights:["نشر ثقافة التقويم الذاتي في المجتمع المدرسي.","تشكيل فريق التقويم الذاتي وفق المعايير المحددة.","توثيق جميع إجراءات وعمليات التقويم الذاتي.","إشراك منسوبي المدرسة وأصحاب المصلحة في التقويم الذاتي."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"7-1-4-1",domain:"d1",standard:"التطوير المؤسسي",text:"تنفذ المدرسة خطة التحسين بناءً على نتائج التقويم المدرسي، وتتابعها.",current:55,target:80,
+   lights:["تحليل نتائج التقويم المدرسي وترتيب المجالات والمؤشرات من حيث أولوية التحسين.","إعداد خطة التحسين المكتملة العناصر مع مشاركة 90% من الكادر التعليمي.","تنفيذ خطة التحسين مع المتابعة المستمرة.","تطوير خطة التحسين بشكل مستمر."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"1-1-5-1",domain:"d1",standard:"حقوق المتعلم وحمايته",text:"تلتزم المدرسة بالمحافظة على حقوق المتعلمين، وحمايتهم.",current:80,target:90,
+   lights:["اعتماد إجراءات حماية حقوق المتعلمين داخل المدرسة مع التأكيد على عدم التسامح مع أي إيذاء.","تنفيذ برامج توعوية دورية بحقوق المتعلمين وسبل الحماية.","ضمان توثيق الحالات والإجراءات المتخذة وحفظ السجلات بسرية."],
+   tools:["استبانة المتعلم","استبانة الأسرة","المقابلات","تحليل الوثائق"]},
+  {id:"2-1-5-1",domain:"d1",standard:"حقوق المتعلم وحمايته",text:"توفر المدرسة مناخاً آمناً للتعلم والنمو نفسياً واجتماعياً.",current:75,target:85,
+   lights:["تنفيذ برامج وقائية تهدف إلى الحد من المشكلات السلوكية والنفسية.","تشجيع المتعلمين على الحوار والمناقشة وقبول الرأي الآخر.","توفير الاستشارات والدعم النفسي والاجتماعي للمتعلمين بشكل مستمر."],
+   tools:["استبانة المعلم","استبانة المتعلم","استبانة الأسرة","المقابلات"]},
+
+  // مجال 2: التعليم والتعلم
+  {id:"1-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"توفر المدرسة فرصاً متكافئة للتعلم تلبي احتياجات المتعلمين، ومنهم ذوو الإعاقة والموهوبون.",current:70,target:80,
+   lights:["تنويع الأنشطة ومصادر التعلم في بيئة التعلم بحيث تلبي احتياجات جميع المتعلمين.","إدارة الوقت بفعالية وكفاءة لدعم عملية التعلم.","إتاحة فرص متكافئة للمتعلمين في عملية التعلم."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"2-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تدعم المدرسة تنفيذ المناهج بما يحقق نواتج التعلم المستهدفة.",current:72,target:82,
+   lights:["تزويد المعلمين بالخطة الدراسية للعام الدراسي وأخذ التوقيعات بالعلم.","المتابعة الدائمة لتنفيذ المنهج وفق الخطة الزمنية.","التدخل العاجل واتخاذ إجراءات مناسبة في حال لم يلتزم المعلم بالخطة."],
+   tools:["استبانة المعلم","استبانة الأسرة","المقابلات","تحليل الوثائق"]},
+  {id:"3-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تنوع المدرسة في استراتيجيات التعليم والتعلم لتلبية احتياجات المتعلمين ودعم تعلمهم.",current:65,target:80,
+   lights:["تشخيص احتياجات المتعلمين لتحديد الاستراتيجيات التعليمية المناسبة.","تطبيق استراتيجيات تدريس نشطة ومتنوعة متمركزة حول الطالب.","مراعاة الفروق الفردية عند تنفيذ الدرس."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"4-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تفعّل المدرسة التقنية الرقمية لدعم تعلم المتعلمين وتلبية احتياجاتهم.",current:60,target:78,
+   lights:["تعزيز الوعي بالأمن الرقمي وأخلاقيات التقنية.","توفير بيئة تعلم إلكترونية متكاملة بالتجهيزات التقنية.","توظيف مصادر تعلم رقمية متعددة لتلبية احتياجات المتعلمين المختلفة."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"5-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تنفذ المدرسة أنشطة تعلم تطبيقية ترتبط بحياة المتعلمين.",current:65,target:78,
+   lights:["إعداد أنشطة تعلم تطبيقية متنوعة مبتكرة ترتبط بالمواقف الحياتية الواقعية.","دمج التعلم القائم على المشاريع وحل المشكلات والاستقصاء.","تفعيل المواقف التعليمية العملية داخل الصف وخارجه."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"6-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تنمي المدرسة المهارات القرائية والعددية الأساسية لدى المتعلمين.",current:68,target:80,
+   lights:["تنفيذ برامج وأنشطة صفية ولاصفية لتنمية مهارات القراءة والكتابة والمهارات العددية.","تنمية مهارات القراءة والفهم والتعبير الكتابي باستخدام استراتيجيات متنوعة.","إعداد خطط علاجية وإثرائية مرنة وتنفيذها."],
+   tools:["استبانة المعلم","استبانة الأسرة","الملاحظة الصفية"]},
+  {id:"7-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تنمي المدرسة مهارات التفكير والبحث والابتكار لدى المتعلمين.",current:62,target:78,
+   lights:["تطبيق استراتيجيات تعلم نشط لتنمية مهارات التفكير والبحث.","تصميم أنشطة صفية ولاصفية محفزة للتفكير الإبداعي والنقدي.","تهيئة بيئة تعلم محفزة للنقاش والحوار البناء."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"8-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تنمي المدرسة المهارات العاطفية والاجتماعية لدى المتعلمين.",current:70,target:80,
+   lights:["تنفيذ برامج تعليمية وأنشطة صفية ولاصفية لتنمية مهارات التحكم في العواطف.","دمج مهارات التواصل العاطفي والاجتماعي في الممارسات التعليمية اليومية.","تفعيل أنشطة تعلم تفاعلية متنوعة كالمسرح التربوي والمناقشات الجماعية."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"9-1-1-2",domain:"d2",standard:"بناء خبرات التعلم",text:"تنمي المدرسة دافعية المتعلمين للتعلم، والاستمتاع به.",current:72,target:82,
+   lights:["تنويع أساليب وأنشطة التعلم لإثارة فضول المتعلمين وزيادة متعتهم.","تطبيق أساليب تحفيزية إيجابية متنوعة لرفع دافعية المتعلمين.","توظيف التقنية والوسائط المتعددة في تصميم أنشطة ممتعة ومشوقة."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"1-1-2-2",domain:"d2",standard:"تقويم التعلم",text:"تطبق المدرسة أساليب وأدوات تقويم متنوعة للكشف عن مستويات أداء المتعلمين المختلفة.",current:68,target:80,
+   lights:["تطبيق أساليب تقويم متنوعة (تشخيصي/تكويني/ختامي) للكشف المبكر عن مستويات الأداء.","تنويع أدوات التقويم (ملف إنجاز، مهام أداء، مشاريع، اختبارات، ملاحظة).","توظيف التقويم الإلكتروني وأدوات التحليل الرقمية."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية","تحليل الوثائق"]},
+  {id:"2-1-2-2",domain:"d2",standard:"تقويم التعلم",text:"تطبق المدرسة أساليب وأدوات متنوعة لتقويم نواتج التعلم المستهدفة في مناهج التعليم.",current:65,target:80,
+   lights:["تطبيق أساليب تقويم متنوعة لقياس تحقق نواتج التعلم المستهدفة.","إعداد مصفوفة مواءمة تقويمية تربط نواتج التعلم بأدوات التقويم ومعايير الأداء.","رفع كفاءة المعلمين في تصميم أدوات تقويم معيارية."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية","تحليل الوثائق"]},
+  {id:"3-1-2-2",domain:"d2",standard:"تقويم التعلم",text:"تحلل المدرسة نتائج التقويم وتوظفها في تحسين عمليات التعليم والتعلم والتقويم.",current:63,target:80,
+   lights:["تحليل نتائج التقويم بطرق متنوعة لتحديد نقاط القوة وفرص التحسين.","توظيف نتائج التحليل في إعداد خطط علاجية وإثرائية.","ربط نتائج التقويم بخطط التطوير المهني للمعلمين."],
+   tools:["استبانة المعلم","المقابلات","تحليل الوثائق"]},
+  {id:"4-1-2-2",domain:"d2",standard:"تقويم التعلم",text:"تقدم المدرسة التغذية الراجعة للمتعلمين وأولياء أمورهم، وتتابع تقدمهم بشكل مستمر.",current:70,target:82,
+   lights:["تقديم تغذية راجعة فورية ومنتظمة أثناء الموقف التعليمي وبعده.","تنويع أساليب التغذية الراجعة لتشمل التعليق الشفوي والكتابي والإلكتروني.","إشراك المتعلمين في عملية التغذية الراجعة من خلال التقويم الذاتي وتقويم الأقران."],
+   tools:["استبانة المعلم","استبانة المتعلم","استبانة الأسرة","المقابلات"]},
+
+  // مجال 3: نواتج التعلم
+  {id:"1-1-1-3",domain:"d3",standard:"التحصيل التعليمي",text:"يحقق المتعلمون نتائج مرتفعة في مجال القراءة وفقاً للاختبارات الوطنية.",current:65,target:77,
+   lights:["تجويد الأداء في جميع مؤشرات مجال الإدارة المدرسية ومجال التعليم والتعلم.","تحليل نتائج الاختبارات الوطنية وتوظيفها لتحديد المهارات الأساسية.","تنفيذ أنشطة تعلم تطبيقية ومهارية في القراءة."],
+   tools:["الاختبارات الوطنية","الاستبانات المصاحبة للاختبار"]},
+  {id:"2-1-1-3",domain:"d3",standard:"التحصيل التعليمي",text:"يحقق المتعلمون نتائج مرتفعة في مجال الرياضيات وفقاً للاختبارات الوطنية.",current:63,target:77,
+   lights:["تنفيذ أنشطة تعلم تطبيقية ومهارية في الرياضيات.","تخصيص برامج علاجية وإثرائية لجميع طلاب المدرسة.","تنمية دافعية المتعلمين للتفوق في الاختبارات الوطنية."],
+   tools:["الاختبارات الوطنية","الاستبانات المصاحبة للاختبار"]},
+  {id:"3-1-1-3",domain:"d3",standard:"التحصيل التعليمي",text:"يحقق المتعلمون نتائج مرتفعة في مجال العلوم وفقاً للاختبارات الوطنية.",current:67,target:77,
+   lights:["تنفيذ أنشطة تعلم تطبيقية ومهارية في العلوم.","تفعيل أدوات التقويم المتنوعة داخل الحصص الدراسية.","تقديم تغذية راجعة فورية للمتعلمين."],
+   tools:["الاختبارات الوطنية","الاستبانات المصاحبة للاختبار"]},
+  {id:"4-1-1-3",domain:"d3",standard:"التحصيل التعليمي",text:"يحقق المتعلمون تقدماً في مجال القراءة قياساً على مستوى أداء المدرسة السابق.",current:60,target:75,
+   lights:["مراجعة نتائج الاختبارات السابقة وتحديد مناطق التحسين.","وضع خطط تدخل مبكر للطلاب الأقل أداءً."],
+   tools:["الاختبارات الوطنية"]},
+  {id:"5-1-1-3",domain:"d3",standard:"التحصيل التعليمي",text:"يحقق المتعلمون تقدماً في مجال الرياضيات قياساً على مستوى أداء المدرسة السابق.",current:58,target:75,
+   lights:["مراجعة نتائج الاختبارات السابقة وتحديد مناطق التحسين في الرياضيات.","تنويع استراتيجيات التدريس بما يركز على مهارات التفكير العليا."],
+   tools:["الاختبارات الوطنية"]},
+  {id:"6-1-1-3",domain:"d3",standard:"التحصيل التعليمي",text:"يحقق المتعلمون تقدماً في مجال العلوم قياساً على مستوى أداء المدرسة السابق.",current:62,target:75,
+   lights:["تحليل نتائج الاختبارات الوطنية في العلوم.","تنفيذ أنشطة تجريبية تعزز الفهم العلمي."],
+   tools:["الاختبارات الوطنية"]},
+  {id:"1-1-2-3",domain:"d3",standard:"التطور الشخصي والصحي والاجتماعي",text:"يظهر المتعلمون الاعتزاز بالقيم والهوية الوطنية.",current:80,target:88,
+   lights:["تضمين القيم الوطنية في الخطة التشغيلية ومتابعة تنفيذها.","إبراز الرموز والهوية الوطنية في البيئة المدرسية.","تفعيل الشراكة المجتمعية لتعزيز الهوية الوطنية."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"2-1-2-3",domain:"d3",standard:"التطور الشخصي والصحي والاجتماعي",text:"يظهر المتعلمون اتجاهات إيجابية نحو ذواتهم والآخرين.",current:75,target:85,
+   lights:["تنفيذ برامج إرشادية لتنمية الثقة بالنفس ومهارات التعبير.","تهيئة بيئة صفية آمنة ومحفزة تسودها أساليب داعمة.","تنفيذ برامج للاحتفاء بإنجازات المتعلمين."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"3-1-2-3",domain:"d3",standard:"التطور الشخصي والصحي والاجتماعي",text:"يظهر المتعلمون التزاماً بالممارسات الصحية السليمة.",current:72,target:82,
+   lights:["تنفيذ برامج توعوية صحية دورية حول أهمية الغذاء المتوازن والنظافة الشخصية.","تنظيم أنشطة رياضية منتظمة وتشجيع النشاط البدني اليومي.","تهيئة بيئة مدرسية داعمة للصحة."],
+   tools:["استبانة المعلم","استبانة المتعلم","استبانة الأسرة"]},
+  {id:"5-1-2-3",domain:"d3",standard:"التطور الشخصي والصحي والاجتماعي",text:"يلتزم المتعلمون بقواعد السلوك والانضباط المدرسي.",current:74,target:84,
+   lights:["تعزيز الوعي بالسلوك والانضباط من خلال برامج توعوية منظمة.","تفعيل المتابعة اليومية للحضور والانصراف والسلوك.","تعزيز السلوك الإيجابي والانضباط المدرسي من خلال برامج تحفيزية."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+  {id:"6-1-2-3",domain:"d3",standard:"التطور الشخصي والصحي والاجتماعي",text:"يظهر المتعلمون الاستقلالية والقدرة على التعلم الذاتي.",current:65,target:78,
+   lights:["تضمين برامج ومهارات البحث والتعلم الذاتي في الخطة التشغيلية.","توظيف استراتيجيات تدريس نشطة تعزز دافعية المتعلمين للبحث.","تدريب المتعلمين على استخدام مصادر التعلم الرقمية الآمنة."],
+   tools:["استبانة المعلم","استبانة المتعلم","الملاحظة الصفية"]},
+
+  // مجال 4: البيئة المدرسية
+  {id:"1-1-1-4",domain:"d4",standard:"المبنى المدرسي",text:"توفر المدرسة مبنى تعليمياً يستوفي المواصفات والاشتراطات المعتمدة من حيث النوع والخدمات المساندة.",current:75,target:85,
+   lights:["تحديد مسؤول لمتابعة جاهزية المبنى وتوثيق مهامه.","إعداد ملف مطابقة المبنى يتضمن قائمة تحقق للاشتراطات الأساسية.","تنفيذ جولة تحقق داخلية منتظمة لرصد الملاحظات."],
+   tools:["تحليل الوثائق","ملاحظة بيئة التعلم"]},
+  {id:"2-1-1-4",domain:"d4",standard:"المبنى المدرسي",text:"تنظيم مبنى المدرسة ملائم لعدد المتعلمين وخصائص المرحلة العمرية، ومنهم ذوو الإعاقة.",current:72,target:82,
+   lights:["إجراء دراسة دورية للطاقة الاستيعابية للمبنى.","توزيع المتعلمين على الفصول بما يحقق الكثافة الصفية المقررة.","تنظيم الأثاث الدراسي بجودة عالية وملاءمة."],
+   tools:["استبانة المعلم","ملاحظة بيئة التعلم"]},
+  {id:"3-1-1-4",domain:"d4",standard:"المبنى المدرسي",text:"تتوافر فصول ومعامل ملائمة للعملية التعليمية تلبي احتياجات المتعلمين، ومنهم ذوو الإعاقة.",current:70,target:82,
+   lights:["إجراء دراسة دورية لواقع الفصول والمعامل لبيان ملاءمتها.","توفير الوسائل التعليمية والتقنيات المناسبة داخل الفصول.","تجهيز المعامل المتخصصة بجميع الأدوات والمواد اللازمة."],
+   tools:["استبانة المعلم","ملاحظة بيئة التعلم"]},
+  {id:"4-1-1-4",domain:"d4",standard:"المبنى المدرسي",text:"تلبي المرافق والتجهيزات والخدمات المساندة احتياجات المتعلمين، ومنهم ذوو الإعاقة.",current:68,target:80,
+   lights:["تهيئة المرافق التعليمية والخدمات المساندة بما يتناسب مع احتياجات المتعلمين.","تجهيز مرافق صحية ملائمة لجميع المتعلمين بما فيها ذوو الإعاقة.","تهيئة المقصف المدرسي وفق معايير السلامة الغذائية."],
+   tools:["استبانة المعلم","استبانة المتعلم","ملاحظة بيئة التعلم"]},
+  {id:"1-1-2-4",domain:"d4",standard:"الأمن والسالمة",text:"تتوافر في مبنى المدرسة ومرافقها جميع متطلبات الأمن والسالمة.",current:78,target:88,
+   lights:["استيفاء متطلبات الأمن والسالمة بالحصول على شهادة سارية من الدفاع المدني.","تطبيق اشتراطات الأمن والسالمة في جميع الفصول والمعامل.","ضمان سلامة مخارج الطوارئ ومسارات الإخلاء."],
+   tools:["تحليل الوثائق","ملاحظة بيئة التعلم","استبانة الأسرة"]},
+  {id:"2-1-2-4",domain:"d4",standard:"الأمن والسالمة",text:"تتابع المدرسة صيانة المبنى وجميع مرافقه وتجهيزاته بشكل دوري.",current:72,target:82,
+   lights:["إجراء حصر دوري لاحتياجات الصيانة في جميع مرافق المدرسة.","تعيين منسق للصيانة يتولى استقبال بلاغات الأعطال.","حفظ سجلات وتقارير الصيانة الواردة والمنجزة."],
+   tools:["استبانة المعلم","تحليل الوثائق","ملاحظة بيئة التعلم"]},
+  {id:"3-1-2-4",domain:"d4",standard:"الأمن والسالمة",text:"تتابع المدرسة نظافة المبنى المدرسي وجميع مرافقه بشكل مستمر.",current:76,target:85,
+   lights:["توفير كوادر كافية لأعمال النظافة وتوضيح مهامهم وجداول عملهم.","تطبيق خطة نظافة يومية وأسبوعية وشهرية.","تعزيز وعي الطلاب بأهمية النظافة الشخصية والعامة."],
+   tools:["استبانة المعلم","استبانة المتعلم","ملاحظة بيئة التعلم"]}
+];
+
+const state = {imprs:[], evidences:[], challenges:[]};
+
+// ==================== CHART ====================
+function initChart() {
+  const labels = INDICATORS.map(i=>i.id);
+  const curr = INDICATORS.map(i=>i.current);
+  const tgt = INDICATORS.map(i=>i.target);
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  new Chart(ctx, {
+    type:'bar',
+    data:{labels,
+      datasets:[
+        {label:'الأداء الحالي',data:curr,backgroundColor:'rgba(45,155,126,.75)',borderRadius:3,barPercentage:.45},
+        {label:'المستهدف',data:tgt,backgroundColor:'rgba(231,76,60,.65)',borderRadius:3,barPercentage:.45}
+      ]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{rtl:true}},
+      scales:{y:{min:0,max:100,ticks:{font:{family:'Tajawal',size:11}}},x:{ticks:{font:{family:'Tajawal',size:9},maxRotation:45}}}}
+  });
+}
+
+// ==================== RENDER GRIDS ====================
+function renderGrid(containerId, domain) {
+  const inds = domain ? INDICATORS.filter(i=>i.domain===domain) : INDICATORS;
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML = '';
+  inds.forEach(ind => {
+    const pct = ind.current;
+    const isLow = pct < ind.target;
+    const div = document.createElement('div');
+    div.className = 'ind-card ' + (isLow?'need':'ok');
+    div.innerHTML = `
+      <div class="ind-id">${ind.id} · ${ind.standard}</div>
+      <h4>${ind.text}</h4>
+      <div class="prog-bar"><div class="prog-fill ${pct>=70?'hi':'lo'}" style="width:${pct}%"></div></div>
+      <div class="ind-row"><span class="ind-cur">الحالي: ${pct}%</span><span class="ind-tgt">المستهدف: ${ind.target}%</span></div>
+    `;
+    div.onclick = () => showIndDetail(ind);
+    container.appendChild(div);
+  });
+}
+
+// ==================== INDICATOR DETAIL MODAL ====================
+function showIndDetail(ind) {
+  const existing = document.getElementById('ind-modal');
+  if(existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'ind-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px';
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:#fff;border-radius:14px;padding:22px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;position:relative;direction:rtl';
+  const toolsHtml = ind.tools.map(t=>`<span class="tool-tag">${t}</span>`).join('');
+  const lightsHtml = ind.lights.map((l,i)=>`<div class="light-item"><div class="light-num">${i+1}</div><span>${l}</span></div>`).join('');
+  modal.innerHTML = `
+    <button onclick="document.getElementById('ind-modal').remove()" style="position:absolute;left:14px;top:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#999">✕</button>
+    <div class="ind-detail-header">
+      <div class="ind-code">${ind.id}</div>
+      <div class="ind-info">
+        <h3>${ind.text}</h3>
+        <div class="ind-meta"><span>📂 ${ind.standard}</span><span>📊 الحالي: ${ind.current}%</span><span>🎯 المستهدف: ${ind.target}%</span></div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar" style="height:8px"><div class="prog-fill ${ind.current>=70?'hi':'lo'}" style="width:${ind.current}%"></div></div>
+      <div style="font-size:11px;color:var(--txt2);margin-top:4px;text-align:left">${ind.current}% من ${ind.target}%</div>
+    </div>
+    <div style="font-size:13.5px;font-weight:800;color:var(--g1);margin-bottom:10px">💡 إضاءات نحو تحقيق المؤشر</div>
+    <div class="lights-list">${lightsHtml}</div>
+    <div class="eval-tools"><strong style="font-size:12px;color:var(--txt2);margin-left:6px">أدوات التقويم:</strong>${toolsHtml}</div>
+  `;
+  overlay.appendChild(modal);
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+}
+
+// ==================== POPULATE IND SELECTS ====================
+function populateSelects() {
+  const opts = INDICATORS.map(i=>`<option value="${i.id}">${i.id} - ${i.text.substring(0,50)}...</option>`).join('');
+  ['im-ind','ev-ind'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = '<option value="">اختر المؤشر...</option>' + opts;
+  });
+}
+
+// ==================== SAVE / RENDER ====================
+function saveImpr() {
+  const t=v('im-title'),ind=v('im-ind'),area=v('im-area'),st=v('im-status'),
+        resp=v('im-resp'),pct=v('im-pct'),start=v('im-start'),end=v('im-end'),
+        desc=v('im-desc'),note=v('im-note');
+  if(!t||!area||!st){alert('يرجى ملء الحقول الأساسية (العنوان، المجال، الحالة)');return;}
+  state.imprs.push({t,ind,area,st,resp,pct,start,end,desc,note,id:Date.now()});
+  renderImprs(); updateCounters();
+  ['im-title','im-ind','im-area','im-status','im-resp','im-pct','im-start','im-end','im-desc','im-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function renderImprs() {
+  const el = document.getElementById('im-list');
+  if(!state.imprs.length){el.innerHTML='<div class="empty">لا توجد تحسينات مضافة حتى الآن.</div>';return;}
+  const stBadge = s => s==='مكتمل'?'b-g':s==='مكتمل جزئياً'?'b-y':'b-r';
+  el.innerHTML = `<table><thead><tr><th>العنوان</th><th>المؤشر</th><th>المجال</th><th>المسؤول</th><th>النسبة</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody>
+  ${state.imprs.map(r=>`<tr>
+    <td>${r.t}</td><td style="font-size:11px">${r.ind||'-'}</td><td>${r.area}</td><td>${r.resp||'-'}</td>
+    <td>${r.pct||'-'}%</td><td><span class="badge ${stBadge(r.st)}">${r.st}</span></td>
+    <td><button class="btn-del" onclick="delImpr(${r.id})">🗑</button></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function delImpr(id){state.imprs=state.imprs.filter(r=>r.id!==id);renderImprs();updateCounters();}
+
+function saveEvid() {
+  const t=v('ev-title'),ind=v('ev-ind'),area=v('ev-area'),tp=v('ev-type'),
+        resp=v('ev-resp'),date=v('ev-date'),desc=v('ev-desc'),link=v('ev-link');
+  if(!t||!area||!tp){alert('يرجى ملء الحقول الأساسية');return;}
+  state.evidences.push({t,ind,area,tp,resp,date,desc,link,id:Date.now()});
+  renderEvidences(); updateCounters();
+  ['ev-title','ev-ind','ev-area','ev-type','ev-resp','ev-date','ev-desc','ev-link'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function renderEvidences() {
+  const el = document.getElementById('ev-list');
+  if(!state.evidences.length){el.innerHTML='<div class="empty">لا توجد شواهد مضافة حتى الآن.</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>العنوان</th><th>النوع</th><th>المجال</th><th>المسؤول</th><th>التاريخ</th><th>الرابط</th><th>إجراء</th></tr></thead><tbody>
+  ${state.evidences.map(r=>`<tr>
+    <td>${r.t}</td><td><span class="badge b-g">${r.tp}</span></td><td>${r.area}</td>
+    <td>${r.resp||'-'}</td><td>${r.date||'-'}</td>
+    <td>${r.link?`<a href="${r.link}" target="_blank" style="color:var(--blue);font-size:11px">رابط</a>`:'-'}</td>
+    <td><button class="btn-del" onclick="delEvid(${r.id})">🗑</button></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function delEvid(id){state.evidences=state.evidences.filter(r=>r.id!==id);renderEvidences();updateCounters();}
+
+function saveChal() {
+  const t=v('ch-title'),area=v('ch-area'),impact=v('ch-impact'),resp=v('ch-resp'),desc=v('ch-desc'),sol=v('ch-sol');
+  if(!t||!area){alert('يرجى ملء الحقول الأساسية');return;}
+  state.challenges.push({t,area,impact,resp,desc,sol,id:Date.now()});
+  renderChals(); updateCounters();
+  ['ch-title','ch-area','ch-impact','ch-resp','ch-desc','ch-sol'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function renderChals() {
+  const el = document.getElementById('ch-list');
+  if(!state.challenges.length){el.innerHTML='<div class="empty">لا توجد تحديات مضافة حتى الآن.</div>';return;}
+  const imp=i=>i==='عالي'?'b-r':i==='متوسط'?'b-y':'b-g';
+  el.innerHTML=`<table><thead><tr><th>التحدي</th><th>المجال</th><th>درجة الأثر</th><th>المسؤول</th><th>إجراء</th></tr></thead><tbody>
+  ${state.challenges.map(r=>`<tr>
+    <td>${r.t}</td><td>${r.area}</td><td><span class="badge ${imp(r.impact)}">${r.impact||'-'}</span></td>
+    <td>${r.resp||'-'}</td><td><button class="btn-del" onclick="delChal(${r.id})">🗑</button></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function delChal(id){state.challenges=state.challenges.filter(r=>r.id!==id);renderChals();updateCounters();}
+
+function v(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+
+function updateCounters() {
+  const comp = state.imprs.filter(r=>r.st==='مكتمل').length;
+  const part = state.imprs.filter(r=>r.st==='مكتمل جزئياً').length;
+  const pend = state.imprs.filter(r=>r.st==='قيد التنفيذ').length;
+  const evComp = state.evidences.filter(r=>r.tp!=='').length;
+
+  setTxt('im-comp',comp); setTxt('im-part',part); setTxt('im-pend',pend);
+  setTxt('ev-comp',evComp); setTxt('ev-part',0);
+  setTxt('h-impr',state.imprs.length); setTxt('h-evid',state.evidences.length);
+  setTxt('r-imp',state.imprs.length); setTxt('r-ic',comp); setTxt('r-ip',pend);
+  setTxt('r-ev',state.evidences.length); setTxt('r-ch',state.challenges.length);
+}
+
+function setTxt(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+
+// ==================== NAVIGATION ====================
+const PAGES = {
+  home:'الواجهة الرئيسية','all-ind':'جميع المؤشرات',
+  d1:'مجال الإدارة المدرسية',d2:'مجال التعليم والتعلم',
+  d3:'مجال نواتج التعلم',d4:'مجال البيئة المدرسية',
+  improvements:'التحسينات',evidence:'الشواهد',challenges:'التحديات',reports:'التقارير'
+};
+
+document.getElementById('nav').addEventListener('click', e => {
+  const item = e.target.closest('.nav-item');
+  if(!item) return;
+  const pg = item.dataset.page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  item.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const target = document.getElementById('page-'+pg);
+  if(target) target.classList.add('active');
+  const title = document.getElementById('page-title');
+  if(title) title.textContent = PAGES[pg] || '';
+});
+
+// ==================== INIT ====================
+window.addEventListener('DOMContentLoaded', () => {
+  renderGrid('all-ind-grid', null);
+  renderGrid('d1-grid','d1');
+  renderGrid('d2-grid','d2');
+  renderGrid('d3-grid','d3');
+  renderGrid('d4-grid','d4');
+  populateSelects();
+  initChart();
+  updateCounters();
+});
+
+// expose delete functions globally
+window.delImpr=delImpr; window.delEvid=delEvid; window.delChal=delChal;
+window.saveImpr=saveImpr; window.saveEvid=saveEvid; window.saveChal=saveChal;
+</script>
+</body>
+</html>
