@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>لوحة قيادة التميز - عمرو بن الجموح</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g1:#1a6b5a;--g2:#2d9b7e;--g3:#3dbfa0;--gp:#e8f7f4;
+  --gold:#e6a817;--goldp:#fff8e1;--red:#c0392b;--redp:#fde8e5;
+  --blue:#2980b9;--bluep:#ebf5fb;--purple:#8e44ad;--purplep:#f5eef8;
+  --txt:#1a2e2b;--txt2:#5a7a75;--bg:#eef3f2;--wh:#fff;
+  --sw:228px;--r:11px;--sh:0 2px 12px rgba(0,0,0,.07);
+}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--txt);display:flex;height:100vh;overflow:hidden;font-size:14px}
+#sb{width:var(--sw);background:linear-gradient(180deg,#145c4d,#0e4438);color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sb-head{padding:14px 12px 10px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sb-head h2{font-size:16px;font-weight:900;line-height:1.3}
+.sb-head p{font-size:10px;opacity:.6;margin-top:2px}
+.sb-sub{padding:6px 12px;font-size:10.5px;opacity:.5;border-bottom:1px solid rgba(255,255,255,.08)}
+nav{flex:1;padding:4px 0}
+.nav-sec{padding:7px 12px 2px;font-size:9.5px;font-weight:700;letter-spacing:.5px;opacity:.4;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:6px;padding:8px 14px;cursor:pointer;font-size:12.5px;font-weight:500;transition:.15s;border-right:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.08);border-right-color:rgba(255,255,255,.3)}
+.nav-item.active{background:rgba(255,255,255,.16);border-right-color:#fff;font-weight:700}
+.nav-icon{font-size:14px;width:17px;text-align:center;flex-shrink:0}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0;margin-right:2px}
+.conn-dot.on{background:#4cdd9a;box-shadow:0 0 6px #4cdd9a}
+.conn-dot.off{background:#e74c3c}
+.conn-dot.loading{background:var(--gold);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+#topbar{background:var(--wh);padding:9px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #dde8e5;flex-shrink:0;gap:10px}
+.tb-badges{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.tb-badge{border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700}
+.bg-g{background:var(--g1);color:#fff}.bg-gold{background:var(--goldp);color:#7a5500;border:1px solid #ffe082}.bg-blue{background:var(--bluep);color:var(--blue);border:1px solid #aed6f1}
+.save-badge{font-size:11px;color:var(--txt2);opacity:.6;transition:opacity .4s;white-space:nowrap}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-title h1{font-size:15px;font-weight:900;color:var(--g1);text-align:right}
+.tb-title p{font-size:10.5px;color:var(--txt2);text-align:right}
+.tbtn{border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;border:1.5px solid transparent;transition:.15s}
+.tbtn:hover{opacity:.85}.tbtn-g{background:var(--gp);color:var(--g1);border-color:var(--g3)}.tbtn-y{background:var(--goldp);color:#7a5500;border-color:#ffe082}.tbtn-r{background:var(--redp);color:var(--red);border-color:#f5c6c1}
+
+#content{padding:16px 20px;flex:1}
+.page{display:none}.page.active{display:block}
+
+/* loading overlay */
+#loading-overlay{position:fixed;inset:0;background:rgba(20,92,77,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;gap:16px;transition:opacity .5s}
+#loading-overlay.hidden{opacity:0;pointer-events:none}
+.spin{width:44px;height:44px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* CARDS */
+.cards-row{display:grid;gap:11px;margin-bottom:12px}
+.cr4{grid-template-columns:repeat(4,1fr)}.cr3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--wh);border-radius:var(--r);padding:13px 15px;box-shadow:var(--sh);position:relative;overflow:hidden;border-top:3px solid var(--g2)}
+.card.gc{background:linear-gradient(135deg,#2d9b7e,#145c4d);color:#fff;border:none}
+.c-lbl{font-size:10px;opacity:.75;margin-bottom:2px}.c-val{font-size:24px;font-weight:900;line-height:1}.c-sub{font-size:9.5px;opacity:.65;margin-top:2px}.c-ico{position:absolute;left:13px;top:11px;font-size:18px;opacity:.55}
+.level-tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.lv-taqadum{background:#ddeeff;color:#1a5a9a}.lv-intilaaq{background:#fff3cd;color:#a07000}
+
+/* PERF */
+.perf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+.perf-card{background:var(--wh);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
+.perf-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.perf-title{font-size:13px;font-weight:700;color:var(--g1)}.perf-pct{font-size:22px;font-weight:900;color:var(--g1)}
+.prog-bar{height:7px;background:#e0ebe8;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:.6s}
+.pf-g{background:linear-gradient(90deg,var(--g3),var(--g1))}.pf-b{background:linear-gradient(90deg,#56aee0,var(--blue))}.pf-o{background:linear-gradient(90deg,var(--gold),#c88c00)}
+
+/* NATIONAL TESTS */
+.test-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.test-card{background:var(--wh);border-radius:var(--r);padding:14px;box-shadow:var(--sh);text-align:center;border-bottom:4px solid var(--g2)}
+.test-card.math{border-bottom-color:var(--blue)}.test-card.sci{border-bottom-color:var(--purple)}
+.test-pct{font-size:28px;font-weight:900;color:var(--g1)}.test-card.math .test-pct{color:var(--blue)}.test-card.sci .test-pct{color:var(--purple)}
+.test-lbl{font-size:11px;color:var(--txt2);margin-top:2px}.test-grade{font-size:9.5px;color:#aaa;margin-top:1px}
+
+/* CHART */
+.chart-box{background:var(--wh);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:12px}
+.chart-box h3{font-size:13px;font-weight:800;color:var(--g1);margin-bottom:2px}
+.chart-box p{font-size:11px;color:var(--txt2);margin-bottom:12px}
+
+/* IMP PLAN */
+.imp-page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.imp-stats{display:flex;gap:10px;flex-wrap:wrap}
+.imp-stat{background:var(--wh);border-radius:9px;padding:10px 16px;box-shadow:var(--sh);text-align:center;border-top:3px solid var(--g2);min-width:90px}
+.imp-stat.gd{border-top-color:var(--gold)}.imp-stat.rd{border-top-color:var(--red)}.imp-stat.bl{border-top-color:var(--blue)}
+.is-val{font-size:22px;font-weight:900;color:var(--g1)}.imp-stat.gd .is-val{color:#a07000}.imp-stat.rd .is-val{color:var(--red)}.imp-stat.bl .is-val{color:var(--blue)}
+.is-lbl{font-size:10px;color:var(--txt2);margin-top:1px}
+
+.domain-section{margin-bottom:16px}
+.domain-header{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#145c4d,#1a7a62);color:#fff;border-radius:10px 10px 0 0;padding:11px 16px}
+.domain-header h3{font-size:13.5px;font-weight:800}.domain-header .dh-count{font-size:11px;opacity:.75;margin-right:auto}
+.imp-table{width:100%;border-collapse:collapse;background:var(--wh);border-radius:0 0 10px 10px;overflow:hidden;box-shadow:var(--sh)}
+.imp-table th{background:#f0f7f5;color:var(--g1);padding:8px 10px;font-size:11px;font-weight:700;text-align:right;border-bottom:2px solid #dde8e5}
+.imp-table td{padding:9px 10px;font-size:11.5px;border-bottom:1px solid #eef4f2;color:var(--txt);vertical-align:top;line-height:1.45}
+.imp-table tr:last-child td{border-bottom:none}
+.imp-table tr:hover td{background:#fafefe}
+
+.st-sel{border:1.5px solid #d0e6e0;border-radius:7px;padding:5px 8px;font-family:'Tajawal',sans-serif;font-size:11px;color:var(--txt);background:#fafefe;outline:none;cursor:pointer;width:100%}
+.st-sel.s-comp{background:#d4f5ec;border-color:#0e7a5e;color:#0e7a5e;font-weight:700}
+.st-sel.s-part{background:#fff3cd;border-color:var(--gold);color:#a07000;font-weight:700}
+.st-sel.s-pend{background:#fde8e5;border-color:var(--red);color:var(--red);font-weight:700}
+
+.evid-wrap{display:flex;flex-direction:column;gap:4px}
+.evid-inp{border:1.5px solid #d0e6e0;border-radius:7px;padding:5px 8px;font-family:'Tajawal',sans-serif;font-size:11px;color:var(--txt);background:#fafefe;outline:none;width:100%;resize:none;min-height:36px}
+.evid-inp:focus{border-color:var(--g3);box-shadow:0 0 0 2px rgba(61,191,160,.15)}
+.evid-btn{background:var(--g2);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-family:'Tajawal',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer}
+.evid-btn:hover{opacity:.85}
+.evid-saved{font-size:10px;color:var(--g2);font-weight:600;display:none}
+.evid-saved.show{display:block}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700}
+.b-g{background:#d4f5ec;color:#0e7a5e}.b-y{background:#fff3cd;color:#a07000}.b-r{background:#fde8e5;color:var(--red)}.b-bl{background:var(--bluep);color:var(--blue)}
+
+/* COMMITTEE */
+.com-tbl{width:100%;border-collapse:collapse;background:var(--wh);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.com-tbl th{background:var(--gp);color:var(--g1);padding:9px 12px;font-size:12px;font-weight:700;text-align:right}
+.com-tbl td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid #eef4f2}
+.com-tbl tr:last-child td{border-bottom:none}
+
+/* FORM */
+.form-box{background:var(--wh);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.form-box h3{font-size:14px;font-weight:800;color:var(--g1);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--gp)}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.fg label{font-size:12px;font-weight:700;color:var(--txt)}
+.fg input,.fg select,.fg textarea{border:1.5px solid #d0e6e0;border-radius:8px;padding:8px 11px;font-family:'Tajawal',sans-serif;font-size:12.5px;color:var(--txt);background:#fafefe;outline:none;transition:.2s;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(45,155,126,.1)}
+.fg textarea{min-height:70px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+.btn-save{background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;border:none;border-radius:9px;padding:9px 22px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;float:left;margin-top:5px}
+.btn-save:hover{opacity:.88}
+.btn-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;padding:2px 5px;border-radius:5px;transition:.15s}
+.btn-del:hover{color:var(--red);background:var(--redp)}
+
+/* SETTINGS */
+.set-section{background:var(--wh);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:14px}
+.set-section h3{font-size:14px;font-weight:800;color:var(--g1);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--gp);display:flex;align-items:center;gap:8px}
+.conn-status-box{padding:12px 16px;border-radius:9px;font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.csb-on{background:#d4f5ec;color:#0e7a5e;border:1px solid #9ee6cf}
+.csb-off{background:var(--redp);color:var(--red);border:1px solid #f5c6c1}
+.csb-none{background:#f5f5f5;color:#888;border:1px solid #ddd}
+.step-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.step-item{display:flex;gap:12px;align-items:flex-start}
+.step-num{background:var(--g1);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-txt{font-size:12.5px;color:var(--txt);line-height:1.6}
+.step-txt code{background:#f0f4f3;padding:2px 6px;border-radius:4px;font-size:11px;color:var(--g1);font-family:monospace;direction:ltr;display:inline-block}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.btn-connect{background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;border:none;border-radius:9px;padding:10px 24px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-connect:hover{opacity:.88}.btn-connect:disabled{opacity:.5;cursor:default}
+.btn-test{background:var(--bluep);color:var(--blue);border:1.5px solid #aed6f1;border-radius:9px;padding:10px 20px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.btn-test:hover{opacity:.85}.btn-test:disabled{opacity:.5;cursor:default}
+.btn-disc{background:var(--redp);color:var(--red);border:1.5px solid #f5c6c1;border-radius:9px;padding:10px 20px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.info-box{background:var(--goldp);border:1px solid #ffe082;border-radius:9px;padding:12px 14px;font-size:12px;color:#7a5500;line-height:1.6;margin-bottom:10px}
+
+.alert{padding:10px 13px;border-radius:8px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5}
+.alert.info{background:var(--gp);border:1px solid #b2dfdb;color:var(--g1)}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#c0d9d4;border-radius:3px}
+
+@media(max-width:900px){.cr4,.cr3{grid-template-columns:1fr 1fr}.perf-grid,.test-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+  <div class="spin"></div>
+  <div style="font-size:15px;font-weight:700" id="loading-msg">جاري تحميل البيانات من Google Sheets...</div>
+</div>
+
+<div id="sb">
+  <div class="sb-head">
+    <h2>لوحة قيادة<br/>التميز المدرسي</h2>
+    <p>مدرسة عمرو بن الجموح الأنصاري</p>
+  </div>
+  <div class="sb-sub">العام الدراسي 1447هـ · قطاع أحد التعليمي</div>
+  <nav id="nav">
+    <div class="nav-sec">الرئيسية</div>
+    <div class="nav-item active" data-page="home"><span class="nav-icon">🏠</span>الواجهة الرئيسية</div>
+    <div class="nav-item" data-page="info"><span class="nav-icon">📋</span>بيانات المدرسة</div>
+    <div class="nav-sec">خطة التحسين الإشرافية</div>
+    <div class="nav-item" data-page="imp-teaching"><span class="nav-icon">📖</span>التدريس</div>
+    <div class="nav-item" data-page="imp-outcomes"><span class="nav-icon">📊</span>نواتج التعلم</div>
+    <div class="nav-item" data-page="imp-activities"><span class="nav-icon">🎭</span>الأنشطة المدرسية</div>
+    <div class="nav-item" data-page="imp-guidance"><span class="nav-icon">🧭</span>التوجيه الطلابي</div>
+    <div class="nav-item" data-page="imp-dev"><span class="nav-icon">🏆</span>التطوير المهني</div>
+    <div class="nav-sec">الأدوات</div>
+    <div class="nav-item" data-page="evidence"><span class="nav-icon">📎</span>الشواهد العامة</div>
+    <div class="nav-item" data-page="committee"><span class="nav-icon">👥</span>لجنة التميز</div>
+    <div class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>الإعدادات<span class="conn-dot" id="sb-dot" style="margin-right:auto"></span></div>
+  </nav>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <div class="tb-badges">
+      <span class="tb-badge bg-g">الأداء العام: 80%</span>
+      <span class="tb-badge bg-gold">مستوى التقدم</span>
+      <span class="tb-badge bg-blue">التعليم والتعلم: 71.75%</span>
+      <span class="save-badge" id="storage-badge">💾 —</span>
+    </div>
+    <div class="tb-right">
+      <button class="tbtn tbtn-g" onclick="exportData()">⬇️ تصدير</button>
+      <label class="tbtn tbtn-y" style="display:inline-block">⬆️ استيراد<input type="file" accept=".json" onchange="importData(this)" style="display:none"></label>
+      <button class="tbtn tbtn-r" onclick="clearAll()">🗑️ مسح</button>
+      <div class="tb-title">
+        <h1 id="page-title">الواجهة الرئيسية</h1>
+        <p>مدرسة عمرو بن الجموح الأنصاري · 664 طالبًا · 43 معلمًا</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="cards-row cr4">
+        <div class="card gc"><div class="c-ico">📊</div><div class="c-lbl">الأداء العام</div><div class="c-val">80%</div><div class="c-sub">مستوى التقدم</div></div>
+        <div class="card gc"><div class="c-ico">🏫</div><div class="c-lbl">الإدارة المدرسية</div><div class="c-val">88.25%</div><div class="c-sub">التقدم</div></div>
+        <div class="card" style="border-top-color:var(--gold)"><div class="c-ico">📚</div><div class="c-lbl">التعليم والتعلم</div><div class="c-val" style="color:var(--gold)">71.75%</div><div class="c-sub"><span class="level-tag lv-intilaaq">الانطلاق · أولوية</span></div></div>
+        <div class="card gc"><div class="c-ico">🌱</div><div class="c-lbl">نواتج التعلم</div><div class="c-val">80%</div><div class="c-sub">التقدم</div></div>
+      </div>
+      <div class="cards-row cr4">
+        <div class="card" style="border-top-color:var(--blue)"><div class="c-ico">🏗️</div><div class="c-lbl">البيئة المدرسية</div><div class="c-val" style="color:var(--blue)">79.25%</div></div>
+        <div class="card"><div class="c-ico">✅</div><div class="c-lbl">إجراءات مكتملة</div><div class="c-val" id="h-comp-imp" style="color:var(--g1)">0</div></div>
+        <div class="card"><div class="c-ico">📎</div><div class="c-lbl">شواهد مرفقة</div><div class="c-val" id="h-evid-count" style="color:var(--g2)">0</div></div>
+        <div class="card" style="border-top-color:var(--red)"><div class="c-ico">⏳</div><div class="c-lbl">قيد التنفيذ</div><div class="c-val" id="h-pend-imp" style="color:var(--red)">0</div></div>
+      </div>
+      <div class="perf-grid">
+        <div class="perf-card"><div class="perf-head"><span class="perf-title">🏫 الإدارة المدرسية</span><span class="perf-pct">88.25%</span></div><div class="prog-bar"><div class="prog-fill pf-g" style="width:88.25%"></div></div><div style="font-size:10.5px;color:var(--txt2);margin-top:5px"><span class="level-tag lv-taqadum">التقدم</span></div></div>
+        <div class="perf-card"><div class="perf-head"><span class="perf-title">📚 التعليم والتعلم</span><span class="perf-pct" style="color:var(--gold)">71.75%</span></div><div class="prog-bar"><div class="prog-fill pf-o" style="width:71.75%"></div></div><div style="font-size:10.5px;color:var(--txt2);margin-top:5px"><span class="level-tag lv-intilaaq">الانطلاق</span> · أولوية التحسين</div></div>
+        <div class="perf-card"><div class="perf-head"><span class="perf-title">🌱 نواتج التعلم</span><span class="perf-pct">80%</span></div><div class="prog-bar"><div class="prog-fill pf-g" style="width:80%"></div></div></div>
+        <div class="perf-card"><div class="perf-head"><span class="perf-title">🏗️ البيئة المدرسية</span><span class="perf-pct" style="color:var(--blue)">79.25%</span></div><div class="prog-bar"><div class="prog-fill pf-b" style="width:79.25%"></div></div></div>
+      </div>
+      <div style="font-size:13px;font-weight:800;color:var(--g1);margin-bottom:8px">📝 نتائج الاختبارات الوطنية — الصف السادس الابتدائي</div>
+      <div class="test-row">
+        <div class="test-card"><div class="test-pct">62.34%</div><div class="test-lbl">القراءة</div><div class="test-grade">الصف السادس الابتدائي</div></div>
+        <div class="test-card math"><div class="test-pct">60.91%</div><div class="test-lbl">الرياضيات</div><div class="test-grade">الصف السادس الابتدائي</div></div>
+        <div class="test-card sci"><div class="test-pct" style="color:var(--purple)">63.02%</div><div class="test-lbl">العلوم</div><div class="test-grade">الصف السادس الابتدائي</div></div>
+      </div>
+      <div class="chart-box">
+        <h3>مقارنة نتائج المجالات والاختبارات الوطنية</h3>
+        <p>نظرة شاملة على مستويات الأداء</p>
+        <canvas id="mainChart" height="85"></canvas>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="page" id="page-info">
+      <div class="alert info"><span>ℹ️</span><span>البيانات الأساسية لمدرسة عمرو بن الجموح الأنصاري وفق وثيقة خطة التحسين 1447هـ</span></div>
+      <div class="cards-row cr3" style="margin-bottom:16px">
+        <div class="card"><div class="c-lbl">الرقم الوزاري</div><div class="c-val" style="font-size:20px;color:var(--g1)">40192</div></div>
+        <div class="card"><div class="c-lbl">عدد الطلاب</div><div class="c-val" style="color:var(--g1)">664</div></div>
+        <div class="card"><div class="c-lbl">الفصول الدراسية</div><div class="c-val" style="color:var(--g1)">22</div></div>
+        <div class="card"><div class="c-lbl">المعلمون</div><div class="c-val" style="color:var(--g1)">43</div></div>
+        <div class="card"><div class="c-lbl">الوكلاء</div><div class="c-val" style="color:var(--g1)">2</div></div>
+        <div class="card"><div class="c-lbl">موجهو الطلاب</div><div class="c-val" style="color:var(--g1)">3</div></div>
+      </div>
+      <div class="set-section">
+        <h3>👤 معلومات المدرسة</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
+          <div><strong>مدير المدرسة:</strong> علاء صالح السيد</div>
+          <div><strong>المرحلة:</strong> ابتدائي (بنين)</div>
+          <div><strong>المبنى:</strong> مستقل — صباحية</div>
+          <div><strong>الإدارة التعليمية:</strong> منطقة المدينة المنورة</div>
+          <div><strong>القطاع:</strong> قطاع أحد التعليمي</div>
+          <div><strong>رائد النشاط:</strong> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMP PAGES -->
+    <div class="page" id="page-imp-teaching">
+      <div class="imp-page-header">
+        <div><div style="font-size:16px;font-weight:900;color:var(--g1)">📖 مجال التدريس</div><div style="font-size:11.5px;color:var(--txt2);margin-top:2px">التخطيط والتنفيذ والتقويم</div></div>
+        <div class="imp-stats">
+          <div class="imp-stat"><div class="is-val" id="t-comp">0</div><div class="is-lbl">مكتمل</div></div>
+          <div class="imp-stat gd"><div class="is-val" id="t-part">0</div><div class="is-lbl">جزئي</div></div>
+          <div class="imp-stat rd"><div class="is-val" id="t-pend">0</div><div class="is-lbl">لم يبدأ</div></div>
+          <div class="imp-stat bl"><div class="is-val" id="t-evid">0</div><div class="is-lbl">شاهد</div></div>
+        </div>
+      </div>
+      <div id="teaching-tables"></div>
+    </div>
+
+    <div class="page" id="page-imp-outcomes">
+      <div class="imp-page-header">
+        <div><div style="font-size:16px;font-weight:900;color:var(--g1)">📊 مجال نواتج التعلم</div><div style="font-size:11.5px;color:var(--txt2)">تحسين التحصيل في الاختبارات الوطنية</div></div>
+        <div class="imp-stats">
+          <div class="imp-stat"><div class="is-val" id="o-comp">0</div><div class="is-lbl">مكتمل</div></div>
+          <div class="imp-stat gd"><div class="is-val" id="o-part">0</div><div class="is-lbl">جزئي</div></div>
+          <div class="imp-stat rd"><div class="is-val" id="o-pend">0</div><div class="is-lbl">لم يبدأ</div></div>
+          <div class="imp-stat bl"><div class="is-val" id="o-evid">0</div><div class="is-lbl">شاهد</div></div>
+        </div>
+      </div>
+      <div id="outcomes-tables"></div>
+    </div>
+
+    <div class="page" id="page-imp-activities">
+      <div class="imp-page-header">
+        <div><div style="font-size:16px;font-weight:900;color:var(--g1)">🎭 مجال الأنشطة المدرسية</div></div>
+        <div class="imp-stats">
+          <div class="imp-stat"><div class="is-val" id="a-comp">0</div><div class="is-lbl">مكتمل</div></div>
+          <div class="imp-stat gd"><div class="is-val" id="a-part">0</div><div class="is-lbl">جزئي</div></div>
+          <div class="imp-stat rd"><div class="is-val" id="a-pend">0</div><div class="is-lbl">لم يبدأ</div></div>
+          <div class="imp-stat bl"><div class="is-val" id="a-evid">0</div><div class="is-lbl">شاهد</div></div>
+        </div>
+      </div>
+      <div id="activities-tables"></div>
+    </div>
+
+    <div class="page" id="page-imp-guidance">
+      <div class="imp-page-header">
+        <div><div style="font-size:16px;font-weight:900;color:var(--g1)">🧭 مجال التوجيه الطلابي</div></div>
+        <div class="imp-stats">
+          <div class="imp-stat"><div class="is-val" id="g-comp">0</div><div class="is-lbl">مكتمل</div></div>
+          <div class="imp-stat gd"><div class="is-val" id="g-part">0</div><div class="is-lbl">جزئي</div></div>
+          <div class="imp-stat rd"><div class="is-val" id="g-pend">0</div><div class="is-lbl">لم يبدأ</div></div>
+          <div class="imp-stat bl"><div class="is-val" id="g-evid">0</div><div class="is-lbl">شاهد</div></div>
+        </div>
+      </div>
+      <div id="guidance-tables"></div>
+    </div>
+
+    <div class="page" id="page-imp-dev">
+      <div class="imp-page-header">
+        <div><div style="font-size:16px;font-weight:900;color:var(--g1)">🏆 التطوير المهني المستمر</div></div>
+        <div class="imp-stats">
+          <div class="imp-stat"><div class="is-val" id="d-comp">0</div><div class="is-lbl">مكتمل</div></div>
+          <div class="imp-stat gd"><div class="is-val" id="d-part">0</div><div class="is-lbl">جزئي</div></div>
+          <div class="imp-stat rd"><div class="is-val" id="d-pend">0</div><div class="is-lbl">لم يبدأ</div></div>
+          <div class="imp-stat bl"><div class="is-val" id="d-evid">0</div><div class="is-lbl">شاهد</div></div>
+        </div>
+      </div>
+      <div id="dev-tables"></div>
+    </div>
+
+    <!-- EVIDENCE -->
+    <div class="page" id="page-evidence">
+      <div style="font-size:16px;font-weight:900;color:var(--g1);margin-bottom:3px">📎 الشواهد العامة</div>
+      <div style="font-size:11.5px;color:var(--txt2);margin-bottom:14px">شواهد إضافية غير مرتبطة بمؤشر محدد</div>
+      <div class="form-box">
+        <h3>إضافة شاهد</h3>
+        <div class="form-grid">
+          <div class="fg"><label>عنوان الشاهد</label><input id="ev-title" placeholder="مثال: محضر اجتماع لجنة التميز"/></div>
+          <div class="fg"><label>نوع الشاهد</label><select id="ev-type"><option value="">اختر النوع</option><option>محضر اجتماع</option><option>تقرير</option><option>صورة</option><option>وثيقة</option><option>بيانات</option><option>خطة</option></select></div>
+          <div class="fg"><label>المجال</label><select id="ev-area"><option value="">اختر</option><option>التدريس</option><option>نواتج التعلم</option><option>الأنشطة</option><option>التوجيه الطلابي</option><option>التطوير المهني</option></select></div>
+          <div class="fg"><label>المسؤول</label><input id="ev-resp" placeholder="الجهة المسؤولة"/></div>
+          <div class="fg"><label>التاريخ</label><input id="ev-date" type="date"/></div>
+          <div class="fg"><label>رابط / مرجع</label><input id="ev-link" placeholder="https://..."/></div>
+          <div class="fg full"><label>الوصف</label><textarea id="ev-desc" placeholder="وصف مختصر..."></textarea></div>
+        </div>
+        <div style="overflow:hidden"><button class="btn-save" onclick="saveEvid()">حفظ الشاهد</button></div>
+      </div>
+      <div class="set-section"><h3>قائمة الشواهد</h3><div id="ev-list"><div style="text-align:center;color:#bbb;padding:24px">لا توجد شواهد.</div></div></div>
+    </div>
+
+    <!-- COMMITTEE -->
+    <div class="page" id="page-committee">
+      <div style="font-size:16px;font-weight:900;color:var(--g1);margin-bottom:12px">👥 لجنة التميز المدرسي</div>
+      <table class="com-tbl">
+        <thead><tr><th>م</th><th>الاسم</th><th>الوظيفة</th><th>المهمة</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>علاء صالح السيد</td><td>مدير المدرسة</td><td><span class="badge b-g">رئيسًا</span></td></tr>
+          <tr><td>2</td><td>سامي محمد الأحمدي</td><td>وكيل الشؤون التعليمية</td><td><span class="badge b-bl">نائبًا للرئيس</span></td></tr>
+          <tr><td>3</td><td>مازن عمر السحيمي</td><td>وكيل شؤون الطلاب</td><td><span class="badge b-y">مقررًا</span></td></tr>
+          <tr><td>4</td><td>فيصل حسن العرفي</td><td>الموجه الطلابي</td><td><span class="badge" style="background:#f5eef8;color:var(--purple)">عضوًا</span></td></tr>
+          <tr><td>5</td><td>محمد مخلد العياضي</td><td>الموجه الطلابي</td><td><span class="badge" style="background:#f5eef8;color:var(--purple)">عضوًا</span></td></tr>
+          <tr><td>6</td><td>وليد إبراهيم الأحمدي</td><td>معلم</td><td><span class="badge" style="background:#f5eef8;color:var(--purple)">عضوًا</span></td></tr>
+          <tr><td>7</td><td>ياسر سليمان الحازمي</td><td>معلم</td><td><span class="badge" style="background:#f5eef8;color:var(--purple)">عضوًا</span></td></tr>
+          <tr><td>8</td><td>سعود عوض السحيمي</td><td>معلم</td><td><span class="badge" style="background:#f5eef8;color:var(--purple)">عضوًا</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div style="font-size:16px;font-weight:900;color:var(--g1);margin-bottom:14px">⚙️ إعدادات اللوحة</div>
+
+      <!-- Connection Status -->
+      <div class="conn-status-box csb-none" id="conn-status-box">
+        <span id="conn-status-icon">⚪</span>
+        <span id="conn-status-text">لم يتم ربط Google Sheets بعد</span>
+      </div>
+
+      <!-- How to setup -->
+      <div class="set-section">
+        <h3>🔗 ربط Google Sheets</h3>
+        <div class="info-box">💡 بعد الربط، أي تغيير في الحالة أو الشاهد يُحفظ تلقائياً في Google Sheets، ويراه جميع أعضاء الفريق فور فتح اللوحة.</div>
+        <div class="step-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-txt">افتح <strong>Google Sheets</strong> جديداً وسمّه: <code>خطة التحسين 1447</code></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-txt">من القائمة اختر <strong>Extensions → Apps Script</strong></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-txt">احذف الكود الموجود، والصق كود <strong>Code.gs</strong> الذي أنشأه كلود، ثم احفظ</div></div>
+          <div class="step-item"><div class="step-num">4</div><div class="step-txt">اضغط <strong>Deploy → New deployment</strong><br/>نوع: <code>Web App</code> · Execute as: <code>Me</code> · Who has access: <code>Anyone</code></div></div>
+          <div class="step-item"><div class="step-num">5</div><div class="step-txt">انسخ رابط الـ Web App والصقه في الحقل أدناه</div></div>
+        </div>
+        <div class="fg"><label>رابط Apps Script Web App</label><input id="gas-url-input" placeholder="https://script.google.com/macros/s/XXXXX/exec" style="direction:ltr;font-size:12px"/></div>
+        <div class="btn-row">
+          <button class="btn-connect" onclick="saveAndConnect()">🔗 حفظ الرابط والربط</button>
+          <button class="btn-test" id="test-btn" onclick="testConnection()">🔌 اختبار الاتصال</button>
+          <button class="btn-disc" onclick="disconnect()">❌ إلغاء الربط</button>
+        </div>
+      </div>
+
+      <!-- Backup -->
+      <div class="set-section">
+        <h3>💾 النسخ الاحتياطي اليدوي</h3>
+        <p style="font-size:12.5px;color:var(--txt2);margin-bottom:12px">يمكن تصدير البيانات كملف JSON واستيرادها لاحقاً أو نقلها لجهاز آخر.</p>
+        <div class="btn-row">
+          <button class="btn-connect" onclick="exportData()">⬇️ تصدير JSON</button>
+          <label class="btn-test" style="cursor:pointer">⬆️ استيراد JSON<input type="file" accept=".json" onchange="importData(this)" style="display:none"></label>
+          <button class="btn-disc" onclick="clearAll()">🗑️ مسح كل البيانات</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+// ==================== PLAN DATA ====================
+const PLAN = {
+  teaching:[
+    {id:'t1',group:'تخطيط التدريس',element:'تخطيط الوحدات والفصول والدروس',need:'إعداد خطط الدروس وتصميم أنشطة التعلم الفعّالة',actions:'إعداد خطط الدروس وتصميم أنشطة التعلم',methods:'ورشة تطبيق Wordwall',duration:'طوال العام',implementer:'المعلمون',responsible:'لجنة التميز',status:'',evidences:[]},
+    {id:'t2',group:'تنفيذ التدريس',element:'طرق التدريس وأساليبه',need:'التنوع في استخدام طرائق التدريس واستراتيجياته',actions:'التنوع في طرق التدريس · دمج الوسائل التقنية ضمن خطة الدرس',methods:'زيارات صفية متبادلة · ورشة Liveworksheet',duration:'طوال العام',implementer:'المعلمون · لجنة التميز',responsible:'مدير المدرسة',status:'',evidences:[]},
+    {id:'t3',group:'تقويم التعلم',element:'التخطيط للتقويم وإعداد أدواته',need:'تطبيق أساليب التقويم وأدواته المناسبة',actions:'تطبيق التقويم التشخيصي والبنائي والختامي',methods:'نشرة أدوات التقويم · مجتمعات تعلم مهنية',duration:'كل فصل',implementer:'المعلمون',responsible:'لجنة التحصيل',status:'',evidences:[]}
+  ],
+  outcomes:[
+    {id:'o1',group:'تحسين التحصيل العلمي',element:'تحليل نتائج الاختبارات الوطنية',need:'رياضيات 60.91% · علوم 63.02% · قراءة 62.34%',actions:'تضمين المهارات المستهدفة في الدروس · دروس تقوية',methods:'ورشة تحسين نواتج التعلم · استثمار حصص الانتظار',duration:'الفصل 1+2',implementer:'معلمون',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'o2',group:'تحسين التحصيل العلمي',element:'تحديد جوانب القوة والضعف',need:'جمع مرئيات المعلمين حول نتائج الاختبارات',actions:'إعداد نماذج محاكية للاختبارات الوطنية · تحليل النتائج',methods:'نماذج تدريب · نماذج تحليل · خطاب لجنة التميز',duration:'الفصل 1',implementer:'معلمون · لجنة التميز',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'o3',group:'تطوير مهارات التفكير',element:'تنمية مهارات التفكير العليا',need:'إثارة دافعية الطلبة وتنمية مهارات التفكير',actions:'تنمية مهارات التفكير العليا · تكريم المتميزين',methods:'ورشة مهارات التفكير العليا',duration:'طوال العام',implementer:'الموجه الطلابي · لجنة التميز',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'o4',group:'مشاركة أولياء الأمور',element:'تزويد أولياء الأمور بالنتائج',need:'مشاركة أولياء الأمور في متابعة الأداء',actions:'تزويد أولياء الأمور بالخطة الأسبوعية وتقارير الأداء',methods:'منصة مدرستي · تقارير · استبانة',duration:'أسبوعياً',implementer:'معلمون · وكيل المدرسة',responsible:'لجنة التحصيل',status:'',evidences:[]}
+  ],
+  activities:[
+    {id:'a1',group:'البرامج والأنشطة',element:'فاعلية الأنشطة في تحسين مهارات الطلاب',need:'أنشطة غير صفية تدعم حاجات الطلاب',actions:'المسابقة الثقافية للفصول · دوري كرة القدم',methods:'المسابقة الثقافية · دوري التحدي لكرة القدم',duration:'الفصل 2',implementer:'رائد النشاط · معلم التربية البدنية',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'a2',group:'البرامج والأنشطة',element:'ارتباط الأنشطة بالأهداف التعليمية',need:'أنشطة تعزز التعليم الصفي',actions:'اليوم العالمي للغة العربية · اليوم العالمي للكيمياء',methods:'اليوم العالمي للغة العربية · اليوم العالمي للكيمياء',duration:'الفصل 1',implementer:'معلمون · رائد النشاط',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'a3',group:'البرامج والأنشطة',element:'الاستمرار في الشراكة مع الأسرة',need:'أنشطة تدعم الشراكة مع أولياء الأمور',actions:'ورشة تطبيق مستقبلهم لأولياء الأمور',methods:'ورشة تطبيق مستقبلهم',duration:'الفصل 2',implementer:'رائد النشاط · وكيل المدرسة',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'a4',group:'البرامج والأنشطة',element:'الاستدامة في فاعلية الأنشطة',need:'أنشطة تدعم حاجات الطلاب باستمرار',actions:'برنامج يوم الفضاء العالمي',methods:'برنامج يوم الفضاء العالمي',duration:'الفصل 2',implementer:'رائد النشاط · الموجه الطلابي',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'a5',group:'البرامج والأنشطة',element:'برامج داعمة للسلوك الإيجابي',need:'مشاركة المتعلمين في برامج السلوك الإيجابي',actions:'برامج وأنشطة إثرائية داعمة للابتكار وتلبية احتياجات الموهوبين',methods:'نشاط ثقافي وعلمي · تكريم المتميزين',duration:'طوال العام',implementer:'رائد النشاط · لجنة التوجيه',responsible:'اللجنة الإدارية',status:'',evidences:[]}
+  ],
+  guidance:[
+    {id:'g1',group:'التوجيه التعليمي والمهني',element:'الشراكة مع الأسرة والمجتمع',need:'تحفيز التعلم والشراكة مع الأسرة',actions:'برامج رفع الدافعية · تحفيز التعلم',methods:'التوجيه الجمعي · مجالس الآباء · دليل مستقبلهم',duration:'الفصل 1+2',implementer:'الموجه الطلابي · وكيل المدرسة',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'g2',group:'توجيه سلوك الطلاب الصحي',element:'التطور الصحي والنفسي والاجتماعي',need:'الوعي الصحي وتعزيز السلوك الإيجابي',actions:'ورشة فوائد وأضرار المشي حافي القدمين · يوم التسامح',methods:'ورشة صحية · برامج يوم التسامح',duration:'الفصل 1+2',implementer:'الموجه الطلابي · رائد النشاط',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'g3',group:'توجيه سلوك الطلاب',element:'نشر قواعد السلوك والمواظبة',need:'توجيه سلوك ومشاركة أولياء الأمور',actions:'توزيع استمارات قواعد السلوك والمواظبة · مشاركة أولياء الأمور',methods:'نشرة الانضباط · محاضرة المشكلات السلوكية · الاحتفالات الوطنية',duration:'طوال العام',implementer:'وكيل المدرسة · الموجه · رائد النشاط',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'g4',group:'الشراكة مع الأسرة والمجتمع',element:'تعزيز القيم الإسلامية والهوية الوطنية',need:'استثمار المناسبات الوطنية في تعزيز القيم',actions:'استثمار المناسبات الوطنية · المساهمة في توعية المجتمع',methods:'نشرات تربوية · مبادرة شكرًا · ورشة الاختبارات المركزية',duration:'طوال العام',implementer:'رائد النشاط · لجنة التوجيه',responsible:'اللجنة الإدارية',status:'',evidences:[]}
+  ],
+  development:[
+    {id:'d1',group:'التطوير المهني المستمر',element:'التطوير الفردي — التأمل الذاتي',need:'تأمل المعلمين في ممارساتهم التدريسية',actions:'التأمل الذاتي الدوري',methods:'بطاقة تأمل ذاتي',duration:'فصل 1+2+3',implementer:'معلمون',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'d2',group:'التطوير المهني المستمر',element:'التطوير الجماعي',need:'تبادل الخبرات بين المعلمين',actions:'مجتمعات التعلم المهني · حلقات النقاش · الملاحظات الصفية',methods:'نشرات تربوية · زيارات صفية تبادلية · مجتمعات تعلم مهنية',duration:'فصل 1+2+3',implementer:'معلمون',responsible:'اللجنة الإدارية',status:'',evidences:[]},
+    {id:'d3',group:'التطوير المهني المستمر',element:'التطوير المهني المدرسي',need:'التفاعل مع التربويين والمجتمع',actions:'دروس تطبيقية وتبادل زيارات · لقاءات مجتمعات تعلم مهنية',methods:'نشرات تربوية · زيارات صفية · مجتمعات تعلم · خطة التطوير المهني',duration:'فصل 1+2+3',implementer:'معلمون',responsible:'اللجنة الإدارية',status:'',evidences:[]}
+  ]
+};
+
+const state = { evidences:[] };
+
+// ==================== GOOGLE SHEETS STORAGE ====================
+let GAS_URL = '';
+try { GAS_URL = localStorage.getItem('amro_gas_url') || ''; } catch(e){}
+
+function updateConnUI() {
+  const dot = document.getElementById('sb-dot');
+  const box = document.getElementById('conn-status-box');
+  const icon = document.getElementById('conn-status-icon');
+  const txt  = document.getElementById('conn-status-text');
+  if (!GAS_URL) {
+    if(dot){ dot.className='conn-dot off'; }
+    if(box){ box.className='conn-status-box csb-off'; }
+    if(icon) icon.textContent='🔴';
+    if(txt)  txt.textContent='غير متصل — البيانات تُحفظ محلياً فقط';
+  } else {
+    if(dot){ dot.className='conn-dot on'; }
+    if(box){ box.className='conn-status-box csb-on'; }
+    if(icon) icon.textContent='🟢';
+    if(txt)  txt.textContent='متصل بـ Google Sheets — البيانات تُحفظ ويراها الجميع';
+  }
+  const inp = document.getElementById('gas-url-input');
+  if(inp && GAS_URL) inp.value = GAS_URL;
+}
+
+async function cloudPost(key, value) {
+  if(!GAS_URL) return;
+  try {
+    fetch(GAS_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({key, value})
+    });
+  } catch(e){}
+}
+
+async function cloudGet() {
+  if(!GAS_URL) return null;
+  try {
+    const res  = await fetch(GAS_URL + '?t=' + Date.now());
+    const json = await res.json();
+    return (json.status==='ok' && json.data) ? json.data : null;
+  } catch(e){ return null; }
+}
+
+function buildExportData() {
+  return {
+    planItems: Object.fromEntries(
+      Object.keys(PLAN).map(k=>[k, PLAN[k].map(it=>({id:it.id, status:it.status, evidences:it.evidences||[]}))])
+    ),
+    evidences: state.evidences,
+    savedAt: new Date().toISOString()
+  };
+}
+
+function applyLoadedData(data) {
+  if(!data) return;
+  Object.keys(data.planItems||{}).forEach(k=>{
+    (data.planItems[k]||[]).forEach(sv=>{
+      const it=(PLAN[k]||[]).find(x=>x.id===sv.id);
+      if(it){
+        it.status = sv.status||'';
+        // support both old (evidence string) and new (evidences array) format
+        if (Array.isArray(sv.evidences)) it.evidences = JSON.parse(JSON.stringify(sv.evidences));
+        else if (sv.evidence) it.evidences = [{text:sv.evidence, date:'—', eid:Date.now()}];
+        else it.evidences = [];
+      }
+    });
+  });
+  state.evidences = data.evidences||[];
+}
+
+function saveState() {
+  const data = buildExportData();
+  // Cloud save (fire-and-forget)
+  cloudPost('all_data', data);
+  // Local backup
+  try { localStorage.setItem('amro_backup', JSON.stringify(data)); } catch(e){}
+  showBadge(GAS_URL ? '✅ محفوظ في Google Sheets' : '💾 محفوظ محلياً');
+}
+
+async function loadState() {
+  const loadingMsg = document.getElementById('loading-msg');
+  // Try cloud
+  if(GAS_URL) {
+    if(loadingMsg) loadingMsg.textContent = 'جاري التحميل من Google Sheets...';
+    const cloud = await cloudGet();
+    if(cloud && cloud.all_data) {
+      applyLoadedData(cloud.all_data);
+      _syncHash = JSON.stringify(cloud.all_data);
+      showBadge('✅ تم التحميل من Google Sheets');
+      return;
+    }
+  }
+  // Fallback to local backup
+  if(loadingMsg) loadingMsg.textContent = 'تحميل البيانات المحلية...';
+  try {
+    const bk = localStorage.getItem('amro_backup');
+    if(bk) { applyLoadedData(JSON.parse(bk)); showBadge('📂 تم التحميل محلياً'); }
+    else { showBadge('—'); }
+  } catch(e) { showBadge('—'); }
+}
+
+function showBadge(msg) {
+  const el=document.getElementById('storage-badge');
+  if(el){el.textContent=msg;el.style.opacity='1';setTimeout(()=>el.style.opacity='0.6',3500);}
+}
+
+// ---- Settings actions ----
+async function saveAndConnect() {
+  const url = document.getElementById('gas-url-input')?.value?.trim();
+  if(!url){alert('الرجاء إدخال الرابط');return;}
+  GAS_URL = url;
+  try{localStorage.setItem('amro_gas_url',GAS_URL);}catch(e){}
+  updateConnUI();
+  await testConnection(true);
+}
+
+async function testConnection(silent=false) {
+  const btn = document.getElementById('test-btn');
+  const url = document.getElementById('gas-url-input')?.value?.trim() || GAS_URL;
+  if(!url){if(!silent)alert('أدخل الرابط أولاً');return;}
+  if(btn){btn.textContent='⏳ جاري الاختبار...';btn.disabled=true;}
+  try {
+    const res  = await fetch(url+'?t='+Date.now());
+    const json = await res.json();
+    if(json.status==='ok'){
+      if(btn){btn.textContent='✅ ناجح!';}
+      GAS_URL = url;
+      try{localStorage.setItem('amro_gas_url',GAS_URL);}catch(e){}
+      updateConnUI();
+      if(!silent) showBadge('✅ متصل بـ Google Sheets');
+    } else {
+      if(btn){btn.textContent='⚠️ خطأ في الاستجابة';}
+    }
+  } catch(e) {
+    if(btn){btn.textContent='❌ فشل الاتصال';}
+    if(!silent) showBadge('❌ تعذّر الاتصال');
+  }
+  setTimeout(()=>{if(btn){btn.textContent='🔌 اختبار الاتصال';btn.disabled=false;}},3000);
+}
+
+function disconnect() {
+  if(!confirm('إلغاء الربط مع Google Sheets؟ ستُحفظ البيانات محلياً فقط.')) return;
+  GAS_URL='';
+  try{localStorage.removeItem('amro_gas_url');}catch(e){}
+  updateConnUI();
+  showBadge('⚠️ تم إلغاء الربط');
+}
+
+// ---- Import / Export / Clear ----
+function exportData() {
+  try {
+    const blob=new Blob([JSON.stringify(buildExportData(),null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='خطة_التحسين_'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();
+  } catch(e){alert('التصدير يعمل على GitHub Pages فقط');}
+}
+
+function importData(input) {
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try {
+      applyLoadedData(JSON.parse(e.target.result));
+      renderAllTables(); renderEvidList();
+      updateAllStats(); updateHomeStats();
+      saveState();
+      showBadge('✅ تم الاستيراد');
+    } catch(err){alert('ملف غير صالح');}
+  };
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  if(!confirm('حذف جميع البيانات؟'))return;
+  try{localStorage.removeItem('amro_backup');}catch(e){}
+  Object.keys(PLAN).forEach(k=>PLAN[k].forEach(it=>{it.status='';it.evidence='';}));
+  state.evidences=[];
+  renderAllTables(); renderEvidList();
+  updateAllStats(); updateHomeStats();
+  showBadge('🗑️ تم مسح البيانات');
+}
+
+// ==================== RENDER PLAN TABLE ====================
+function renderImpTable(cid, items, prefix) {
+  const container=document.getElementById(cid); if(!container)return;
+  const groups={};
+  items.forEach(it=>{ if(!groups[it.group])groups[it.group]=[]; groups[it.group].push(it); });
+  let html='';
+  Object.entries(groups).forEach(([gname,gitems])=>{
+    html+=`<div class="domain-section">
+      <div class="domain-header"><h3>📌 ${gname}</h3><span class="dh-count">${gitems.length} إجراء</span></div>
+      <table class="imp-table">
+        <thead><tr>
+          <th style="width:14%">العنصر/المكون</th>
+          <th style="width:18%">وصف الاحتياج</th>
+          <th style="width:17%">إجراءات التحسين</th>
+          <th style="width:14%">الأساليب</th>
+          <th style="width:8%">المدة</th>
+          <th style="width:9%">المنفذ</th>
+          <th style="width:8%">المسؤول</th>
+          <th style="width:8%">الحالة</th>
+          <th style="width:20%">الشاهد</th>
+        </tr></thead><tbody>`;
+    gitems.forEach(it=>{
+      html+=`<tr>
+        <td><strong style="color:var(--g1)">${it.element}</strong></td>
+        <td>${it.need}</td>
+        <td>${it.actions.replace(/·/g,'<br>·')}</td>
+        <td style="font-size:10.5px">${it.methods.replace(/·/g,'<br>·')}</td>
+        <td style="font-size:10.5px;color:var(--txt2)">${it.duration}</td>
+        <td style="font-size:10.5px">${it.implementer.replace(/·/g,'<br>')}</td>
+        <td style="font-size:10.5px;color:var(--txt2)">${it.responsible}</td>
+        <td><select class="st-sel" id="st-${it.id}" onchange="updateStatus('${it.id}',this)">
+          <option value="">لم يبدأ</option>
+          <option value="pend">قيد التنفيذ</option>
+          <option value="part">جزئياً</option>
+          <option value="comp">مكتمل</option>
+        </select></td>
+        <td>
+          <div class="evid-wrap">
+            <textarea class="evid-inp" id="ev-${it.id}" rows="2" placeholder="أضف شاهداً جديداً..."></textarea>
+            <div style="display:flex;align-items:center;gap:5px">
+              <button class="evid-btn" onclick="saveEvidence('${it.id}')">➕ إضافة</button>
+              <span class="evid-saved" id="evs-${it.id}">✓ تمت الإضافة</span>
+            </div>
+          </div>
+          <div id="evlist-${it.id}" style="margin-top:5px"></div>
+        </td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  });
+  container.innerHTML=html;
+  // Restore states and evidence lists
+  items.forEach(it=>{
+    if(it.status){const sel=document.getElementById('st-'+it.id);if(sel){sel.value=it.status;applySelStyle(sel);}}
+    if(Array.isArray(it.evidences)&&it.evidences.length) renderEvidenceList(it.id, it.evidences);
+  });
+}
+
+function renderAllTables() {
+  renderImpTable('teaching-tables',  PLAN.teaching,  't');
+  renderImpTable('outcomes-tables',  PLAN.outcomes,  'o');
+  renderImpTable('activities-tables',PLAN.activities,'a');
+  renderImpTable('guidance-tables',  PLAN.guidance,  'g');
+  renderImpTable('dev-tables',       PLAN.development,'d');
+}
+
+// ==================== ACTIONS ====================
+function updateStatus(id, sel) {
+  const it=findItem(id); if(it) it.status=sel.value;
+  applySelStyle(sel);
+  updateAllStats(); updateHomeStats();
+  saveState();
+}
+
+function applySelStyle(sel) {
+  sel.classList.remove('s-comp','s-part','s-pend');
+  if(sel.value==='comp') sel.classList.add('s-comp');
+  else if(sel.value==='part') sel.classList.add('s-part');
+  else if(sel.value==='pend') sel.classList.add('s-pend');
+}
+
+function saveEvidence(id) {
+  const ta  = document.getElementById('ev-'+id);
+  const txt = ta ? ta.value.trim() : '';
+  if (!txt) return;
+  const it = findItem(id);
+  if (it) {
+    if (!Array.isArray(it.evidences)) it.evidences = [];
+    it.evidences.push({ text: txt, date: new Date().toLocaleDateString('ar-SA'), eid: Date.now() });
+    renderEvidenceList(id, it.evidences);
+  }
+  if (ta) ta.value = '';
+  const el = document.getElementById('evs-'+id);
+  if (el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 2000); }
+  updateAllStats(); updateHomeStats();
+  saveState();
+}
+
+function renderEvidenceList(id, evArr) {
+  const container = document.getElementById('evlist-'+id);
+  if (!container) return;
+  if (!evArr || !evArr.length) { container.innerHTML=''; return; }
+  container.innerHTML = evArr.map((e,i)=>`
+    <div style="display:flex;align-items:flex-start;gap:5px;background:#f0f7f5;border-radius:6px;padding:5px 7px;margin-top:4px;font-size:10.5px;color:var(--txt)">
+      <span style="background:var(--g2);color:#fff;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:1px">${i+1}</span>
+      <span style="flex:1;line-height:1.5">${e.text}</span>
+      <span style="color:#aaa;font-size:9.5px;white-space:nowrap;margin-top:1px">${e.date}</span>
+      <button onclick="deleteEvidence('${id}',${e.eid})" style="background:none;border:none;cursor:pointer;color:#ccc;font-size:12px;padding:0 2px;flex-shrink:0" title="حذف">✕</button>
+    </div>`).join('');
+}
+
+function deleteEvidence(id, eid) {
+  const it = findItem(id);
+  if (!it || !Array.isArray(it.evidences)) return;
+  it.evidences = it.evidences.filter(e => e.eid !== eid);
+  renderEvidenceList(id, it.evidences);
+  updateAllStats(); updateHomeStats();
+  saveState();
+}
+window.deleteEvidence = deleteEvidence;
+
+function saveEvid() {
+  const t=v('ev-title'),tp=v('ev-type');
+  if(!t||!tp){alert('يرجى ملء العنوان والنوع');return;}
+  state.evidences.push({t,tp,area:v('ev-area'),resp:v('ev-resp'),date:v('ev-date'),link:v('ev-link'),desc:v('ev-desc'),id:Date.now()});
+  renderEvidList(); updateHomeStats(); saveState();
+  ['ev-title','ev-type','ev-area','ev-resp','ev-date','ev-link','ev-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function renderEvidList() {
+  const el=document.getElementById('ev-list');
+  if(!state.evidences.length){el.innerHTML='<div style="text-align:center;color:#bbb;padding:24px">لا توجد شواهد.</div>';return;}
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse">
+    <thead><tr style="background:var(--gp)">
+      <th style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--g1);text-align:right">العنوان</th>
+      <th style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--g1);text-align:right">النوع</th>
+      <th style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--g1);text-align:right">المجال</th>
+      <th style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--g1);text-align:right">التاريخ</th>
+      <th style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--g1);text-align:right">إجراء</th>
+    </tr></thead><tbody>
+    ${state.evidences.map(r=>`<tr style="border-bottom:1px solid #eef4f2">
+      <td style="padding:8px 10px;font-size:12px">${r.t}</td>
+      <td style="padding:8px 10px"><span class="badge b-g">${r.tp}</span></td>
+      <td style="padding:8px 10px;font-size:11.5px">${r.area||'-'}</td>
+      <td style="padding:8px 10px;font-size:11px;color:var(--txt2)">${r.date||'-'}</td>
+      <td style="padding:8px 10px"><button class="btn-del" onclick="delEvid(${r.id})">🗑</button></td>
+    </tr>`).join('')}
+    </tbody></table>`;
+}
+function delEvid(id){state.evidences=state.evidences.filter(r=>r.id!==id);renderEvidList();updateHomeStats();saveState();}
+
+function findItem(id){for(const k of Object.keys(PLAN)){const it=PLAN[k].find(x=>x.id===id);if(it)return it;}return null;}
+
+// ==================== STATS ====================
+function updateStats(pfx, items) {
+  const comp=items.filter(x=>x.status==='comp').length;
+  const part=items.filter(x=>x.status==='part').length;
+  const pend=items.filter(x=>x.status==='pend').length;
+  const evid=items.filter(x=>x.evidence&&x.evidence.trim()).length;
+  setTxt(pfx+'-comp',comp);setTxt(pfx+'-part',part);setTxt(pfx+'-pend',pend);setTxt(pfx+'-evid',evid);
+}
+function updateAllStats(){
+  updateStats('t',PLAN.teaching);updateStats('o',PLAN.outcomes);
+  updateStats('a',PLAN.activities);updateStats('g',PLAN.guidance);updateStats('d',PLAN.development);
+}
+function updateHomeStats(){
+  const all=[...PLAN.teaching,...PLAN.outcomes,...PLAN.activities,...PLAN.guidance,...PLAN.development];
+  setTxt('h-comp-imp',all.filter(x=>x.status==='comp').length);
+  setTxt('h-pend-imp',all.filter(x=>x.status==='pend').length);
+  setTxt('h-evid-count',all.filter(x=>x.evidence&&x.evidence.trim()).length+state.evidences.length);
+}
+function setTxt(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function v(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+
+// ==================== CHART ====================
+function initChart(){
+  const ctx=document.getElementById('mainChart').getContext('2d');
+  new Chart(ctx,{type:'bar',
+    data:{labels:['الإدارة المدرسية','التعليم والتعلم','نواتج التعلم','البيئة المدرسية','القراءة','الرياضيات','العلوم'],
+      datasets:[{label:'الأداء',data:[88.25,71.75,80,79.25,62.34,60.91,63.02],
+        backgroundColor:['#2d9b7e','#e6a817','#2d9b7e','#2980b9','#3dbfa0','#2980b9','#8e44ad'],borderRadius:4,barPercentage:.55}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{rtl:true,callbacks:{label:c=>' '+c.raw+'%'}}},
+      scales:{y:{min:50,max:100,ticks:{font:{family:'Tajawal',size:11},callback:v=>v+'%'}},
+              x:{ticks:{font:{family:'Tajawal',size:10},maxRotation:25}}}}});
+}
+
+// ==================== NAV ====================
+const PAGE_TITLES={'home':'الواجهة الرئيسية','info':'بيانات المدرسة',
+  'imp-teaching':'التدريس','imp-outcomes':'نواتج التعلم',
+  'imp-activities':'الأنشطة المدرسية','imp-guidance':'التوجيه الطلابي',
+  'imp-dev':'التطوير المهني','evidence':'الشواهد العامة',
+  'committee':'لجنة التميز','settings':'الإعدادات'};
+
+document.getElementById('nav').addEventListener('click',e=>{
+  const item=e.target.closest('.nav-item'); if(!item)return;
+  const pg=item.dataset.page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  item.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const t=document.getElementById('page-'+pg); if(t)t.classList.add('active');
+  const title=document.getElementById('page-title'); if(title)title.textContent=PAGE_TITLES[pg]||'';
+});
+
+// expose
+window.updateStatus=updateStatus; window.saveEvidence=saveEvidence;
+window.saveEvid=saveEvid; window.delEvid=delEvid;
+window.exportData=exportData; window.importData=importData; window.clearAll=clearAll;
+window.saveAndConnect=saveAndConnect; window.testConnection=testConnection; window.disconnect=disconnect;
+
+// ==================== INIT ====================
+window.addEventListener('DOMContentLoaded', async ()=>{
+  updateConnUI();
+  await loadState();
+  renderAllTables();
+  renderEvidList();
+  initChart();
+  updateAllStats();
+  updateHomeStats();
+  // Hide loading overlay
+  const ov=document.getElementById('loading-overlay');
+  if(ov){ ov.classList.add('hidden'); setTimeout(()=>ov.remove(),600); }
+});
+</script>
+</body>
+</html>
